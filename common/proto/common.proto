@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package common;
+
+import "google/api/annotations.proto";
+
+service CommonService {
+}
+
+message Response {
+    string result = 1;
+    map<string,string> data = 2;
+}
