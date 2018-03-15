@@ -6,30 +6,32 @@ import "google/api/annotations.proto";
 
 service RoleService {
     rpc Create(Role) returns(Response) {
-            option(google.api.http) = {
-                post: "/v1/roles"
-                body: "*"
-            };
-
-        }
-    rpc GetAll(RequestSearch) returns(ResponseList) {
-            option(google.api.http) = {
-                get: "/v1/roles"
-            };
-
-        }
-    rpc GetRole(Role) returns (ResponseRole) {
-        option (google.api.http) = {
+        option(google.api.http) = {
+            post: "/v1/roles"
+            body: "*"
+        };
+    }
+    rpc GetAll(RequestQuery) returns(ResponseList) {
+        option(google.api.http) = {
+            get: "/v1/roles"
+        };
+    }
+    rpc GetRole(Role) returns(ResponseRole) {
+        option(google.api.http) = {
             get: "/v1/roles/{id}"
         };
     }
-    rpc UpdateRole(Role) returns (Response) {
-        option (google.api.http) = {
+    rpc UpdateRole(Role) returns(Response) {
+        option(google.api.http) = {
             patch: "/v1/roles/{id}"
             body: "*"
         };
     }
-        //rpc Update(Role) returns (Response) {}
+    rpc DeleteRole(Role) returns(Response) {
+        option(google.api.http) = {
+            delete: "/v1/roles/{id}"
+        };
+    }
 }
 
 message Role {
@@ -43,17 +45,17 @@ message Role {
 
 message Response {
     string result = 1;
-    map<string,string> error = 2;
-    map<string,string> data = 3;
+    map < string, string > error = 2;
+    map < string, string > data = 3;
 }
 
 message ResponseRole {
     string result = 1;
-    map<string,string> error = 2;
+    map < string, string > error = 2;
     Role data = 3;
 }
 
-message RequestSearch {
+message RequestQuery {
     string offset = 1;
     string limit = 2;
     string orderby = 3;
@@ -62,7 +64,7 @@ message RequestSearch {
 
 message ResponseList {
     string result = 1;
-    map<string,string> error = 2;
+    map < string, string > error = 2;
     RoleList data = 3;
 }
 
@@ -72,5 +74,3 @@ message RoleList {
     string count = 3;
     repeated Role list = 4;
 }
-
-
