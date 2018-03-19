@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package public;
+
+import "google/api/annotations.proto";
+
+service PublicService {
+    rpc Register(User) returns(Response) {
+        option(google.api.http) = {
+            post: "/v1/register"
+            body: "*"
+        };
+    }
+    rpc Authenticate(LoginRequest) returns(Response) {
+        option(google.api.http) = {
+            post: "/v1/authenticate"
+            body: "*"
+        };
+    }
+}
+
+message User {
+    string id = 1;
+    string network_id = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string email = 5;
+    string password = 6;
+    string is_admin = 7;
+    string created_at = 8;
+    string updated_at = 9;
+}
+
+message Response {
+    string result = 1;
+    map < string, string > error = 2;
+    map < string, string > data = 3;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+

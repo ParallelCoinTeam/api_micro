@@ -1,74 +1,39 @@
 package common
 
-func CheckAuth(tokenString string) bool {
-	if tokenString != "valid-token" {
-		return true
-	}
-	return false
-}
+import (
+	"errors"
 
-/*
+	jwt "github.com/dgrijalva/jwt-go"
+)
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImtoYWxpZDEyMyIsInBhc3N3b3JkIjoia2hhbGlkZXJlIiwiaXNzIjoidGVzdCJ9.ArFi3j8aEpXAxKKdeLBgDzsxb6uRwvMvRUMm5UXiLfM
-
-
-func (c SecurityService) AuthProvider(request *revel.Request) map[string]interface{} {
-
-	apiKey := request.Header.Get("x-key")
-	jwtToken := request.Header.Get("x-jwt")
-
-	publicEndPoint := false
-	if strings.Contains(request.URL.Path, "/public/") {
-		publicEndPoint = true
-	}
-
-	if apiKey == "" {
-		return c.errorAuthResponse("Header missing: x-key ")
-	}
-	if jwtToken == "" {
-		return c.errorAuthResponse("Header missing: x-jwt ")
-	}
-
-	client := models.Client{}
-	Db.Table("public.client as c").
-		Select("*").
-		Where("c.api_key = ?", apiKey).
-		Scan(&client)
-
-	if client.ApiSecret == "" {
-		return c.errorAuthResponse("Invalid api_key ")
-	}
+func CheckAuth(tokenString string) (string, string, error) {
 
 	type Claims struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		CurrentUserId string `json:"current_user_id"`
+		NetworkId     string `json:"network_id"`
+		IsAdmin       string `json:"is_admin"`
 		jwt.StandardClaims
 	}
-
 	tokenClaims := Claims{}
 
-	_, err := jwt.ParseWithClaims(jwtToken, &tokenClaims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(client.ApiSecret), nil
+	token, err := jwt.ParseWithClaims(tokenString, &tokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("dHb%e@Bg0f8-API_SECRET-&bE71jKoH=2"), nil
 	})
-
 	if err != nil {
-		return c.errorAuthResponse("Invalid JWT Signature")
+		return "", "", errors.New(err.Error())
 	}
-
-	if !publicEndPoint {
-		if (tokenClaims.Username != "new_registration") && (tokenClaims.Password != "new_registration") {
-			user := models.User{}
-			password, _ := b64.URLEncoding.DecodeString(tokenClaims.Password)
-			plainPassword := string(password)
-
-			Db.Where("email = ? AND password = ?", tokenClaims.Username, string(plainPassword)).Find(&user)
-
-			if user.FirstName == "" {
-				return c.errorAuthResponse("Invalid Email or Password ")
-			}
+	if token.Valid {
+		return tokenClaims.CurrentUserId, tokenClaims.NetworkId, nil
+	} else if ve, ok := err.(*jwt.ValidationError); ok {
+		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			return "", "", errors.New("That's not even a token")
+		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			// Token is either expired or not active yet
+			return "", "", errors.New("Timing is everything")
+		} else {
+			return "", "", errors.New("Couldn't handle this token")
 		}
+	} else {
+		return "", "", errors.New("Couldn't handle this token")
 	}
-
-	return nil
 }
-*/

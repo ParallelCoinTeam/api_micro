@@ -9,8 +9,9 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	//"github.com/syedomair/api_micro/common"
 	"github.com/syedomair/api_micro/common"
-	pb "github.com/syedomair/api_micro/role-service/proto"
+	pb "github.com/syedomair/api_micro/user-service/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -40,14 +41,14 @@ func startGRPC(port string) error {
 	} else {
 		fmt.Printf("Connected to DB")
 	}
-	repo := &RoleRepository{db}
+	repo := &UserRepository{db}
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
 	}
 	//s := grpc.NewServer()
 	s := grpc.NewServer(grpc.UnaryInterceptor(AuthInterceptor))
-	pb.RegisterRoleServiceServer(s, &service{repo})
+	pb.RegisterUserServiceServer(s, &service{repo})
 	return s.Serve(lis)
 }
 
@@ -58,7 +59,7 @@ func startHTTP(httpPort, grpcPort string) error {
 	defer cancel()
 	gwmux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	if err := pb.RegisterRoleServiceHandlerFromEndpoint(ctx, gwmux, "127.0.0.1:"+grpcPort, opts); err != nil {
+	if err := pb.RegisterUserServiceHandlerFromEndpoint(ctx, gwmux, "127.0.0.1:"+grpcPort, opts); err != nil {
 		return err
 	}
 	mux := http.NewServeMux()
@@ -76,7 +77,7 @@ func AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 	if len(meta["authorization"]) != 1 {
 		return nil, grpc.Errorf(codes.Unauthenticated, "missing authorization token")
 	}
-	currentUserId, networkId, authErr := common.CheckAuth(meta["authorization"][0])
+	currentUserId, networkId, authErr := CheckAuth(meta["authorization"][0])
 	if authErr != nil {
 		return &pb.ResponseList{Result: common.FAILURE, Error: common.CommonError(authErr.Error()), Data: nil}, nil
 	}

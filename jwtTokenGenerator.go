@@ -9,20 +9,22 @@ import (
 func main() {
 	fmt.Println("vim-go")
 	//api_secret=g$5%6kQ56-API_SECRET-6gE@7&EbR2
-	apiSecret := "dHb%e@Bg0f8-API_KEY-&bE71jKoH=2"
+	apiSecret := "dHb%e@Bg0f8-API_SECRET-&bE71jKoH=2"
 	signingKey := []byte(apiSecret)
 
 	type Claims struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		CurrentUserId string `json:"current_user_id"`
+		NetworkId     string `json:"network_id"`
+		IsAdmin       string `json:"is_admin"`
 		jwt.StandardClaims
 	}
 
 	claims := Claims{
-		"khalid123",
-		"khalidere",
+		"123",
+		"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+		"1",
 		jwt.StandardClaims{
-			Issuer: "test",
+			Issuer: "MEEM",
 		},
 	}
 

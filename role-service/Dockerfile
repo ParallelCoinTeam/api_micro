@@ -5,9 +5,9 @@ WORKDIR /go/src/github.com/syedomair/api_micro/role-service
 
 COPY src .
 COPY proto proto
-COPY vendor vendor
 RUN go get -u github.com/golang/dep/cmd/dep
 RUN dep init && dep ensure
+COPY vendor vendor
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o role-service -a -installsuffix cgo main.go repository.go handler.go database.go 
 

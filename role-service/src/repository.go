@@ -58,18 +58,13 @@ func (repo *RoleRepository) Get(roleId string, networkId string) (*pb.Role, erro
 }
 
 func (repo *RoleRepository) Update(role *pb.Role, networkId string) error {
-	roleId := role.Id
-	if err := repo.db.Where("network_id = ?", networkId).Where("id = ?", roleId).Find(&role).Error; err != nil {
-		return err
-	}
-	if err := repo.db.Model(&role).Update(&role).Error; err != nil {
+	if err := repo.db.Model(role).Update(&role).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (repo *RoleRepository) Delete(role *pb.Role, networkId string) error {
-
 	roleId := role.Id
 	if err := repo.db.Where("network_id = ?", networkId).Where("id = ?", roleId).Find(&role).Error; err != nil {
 		return err
