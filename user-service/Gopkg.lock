@@ -67,7 +67,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["common"]
-  revision = "bbe2dd89311260668f623f0855a33aa32c31d305"
+  revision = "cf7eeb44b3fdcefaf2fefe81c796a95f4e730752"
 
 [[projects]]
   branch = "master"

@@ -1,0 +1,48 @@
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nats-client-ap2
+  labels:
+    app: nats-client-ap2
+spec:
+  selector:
+    matchLabels:
+      app: nats-client-ap2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nats-client-ap2
+    spec:
+      volumes:
+      - name: "client-tls-certs"
+        secret:
+          secretName: "nats-client-tls-certs"
+      containers:
+      - name: nats-client-ap2
+        command: ["/nats-client-ap2", "-s", "nats://nats-cluster.default.svc.cluster.local:4222", "-cacert", '/etc/nats-client-tls-certs/ca.pem', '-cert', '/etc/nats-client-tls-certs/client.pem', '-key', '/etc/nats-client-tls-certs/client-key.pem']
+        image: 755455355830.dkr.ecr.us-east-2.amazonaws.com/nats-client-ap2
+        env:
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: username
+        - name: SECRET_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        #ports:
+        #- containerPort: 1883
+        #imagePullPolicy: Always
+        imagePullPolicy: Never
+        ports:
+        - name: nats-client-ap2
+          containerPort: 8180
+        volumeMounts:
+        - name: "client-tls-certs"
+          mountPath: "/etc/nats-client-tls-certs/"
+
+

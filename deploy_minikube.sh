@@ -8,7 +8,9 @@ echo "Removing previous deployment "
 echo "---------------------------- "
 for d in */ ; do
   if [[ $d = *"service"* ]]; then
+    echo "---------------------------- "
     echo "Processing: $d"
+    echo "---------------------------- "
     kubectl delete deployment ${d%-service/}-deployment 
     kubectl delete service ${d%-service/}-service 
   fi
@@ -20,7 +22,9 @@ echo "Deploying "
 echo "--------- "
 for d in */ ; do
   if [[ $d = *"service"* ]]; then
+    echo "---------------------------- "
     echo "Processing: $d"
+    echo "---------------------------- "
     cd $d
     pwd 
     make build

@@ -55,7 +55,23 @@
     "hstore",
     "oid"
   ]
-  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
+  revision = "b2004221932bd6b13167ef654c81cffac36f7537"
+
+[[projects]]
+  name = "github.com/nats-io/go-nats"
+  packages = [
+    ".",
+    "encoders/builtin",
+    "util"
+  ]
+  revision = "d66cb54e6b7bdd93f0b28afc8450d84c780dfb68"
+  version = "v1.4.0"
+
+[[projects]]
+  name = "github.com/nats-io/nuid"
+  packages = ["."]
+  revision = "289cccf02c178dc782430d534e3c1f5b72af807f"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -67,7 +83,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["common"]
-  revision = "bbe2dd89311260668f623f0855a33aa32c31d305"
+  revision = "cf7eeb44b3fdcefaf2fefe81c796a95f4e730752"
 
 [[projects]]
   branch = "master"
@@ -81,7 +97,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "24dd3780ca4f75fed9f321890729414a4b5d3f13"
+  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -146,6 +162,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "70c96c6a25eca3555be78c9eb36c6b7e9d12e8ba5b4cc56e172b040da82496c2"
+  inputs-digest = "ddf682d18c5b421941fc353992cac0f8876cc44d02ccd55c155ec07e477063d4"
   solver-name = "gps-cdcl"
   solver-version = 1

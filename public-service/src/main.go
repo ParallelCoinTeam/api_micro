@@ -33,15 +33,18 @@ func startGRPC(port string) error {
 	if err != nil {
 		log.Fatalf("Could not connect to DB: %v", err)
 	} else {
-		fmt.Printf("Connected to DB")
+		fmt.Println("Connected to DB")
 	}
+
 	repo := &PublicRepository{db}
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
 	}
+	nats, _ := CreateNATSConnection()
+
 	s := grpc.NewServer()
-	pb.RegisterPublicServiceServer(s, &service{repo})
+	pb.RegisterPublicServiceServer(s, &service{repo, nats})
 	return s.Serve(lis)
 }
 

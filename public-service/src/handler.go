@@ -1,52 +1,37 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"log"
 
 	"golang.org/x/net/context"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	nats "github.com/nats-io/go-nats"
 	"github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
 )
 
-const (
-	port      = ":50051"
-	aggregate = "Order"
-	event     = "OrderCreated"
-)
-
 type service struct {
 	repo Repository
+	nats *nats.Conn
 }
 
 func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, error) {
 
 	networkId := "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
-	fmt.Println(networkId)
 	userId, err := s.repo.Create(req, networkId)
 	if err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
 	}
 	responseUserId := map[string]string{"user_id": userId}
 
-	jsonStr := "username=omair1"
-	fmt.Println(jsonStr)
-	request, err := http.NewRequest("POST", "kong-admin"+"/consumers", bytes.NewBuffer([]byte(jsonStr)))
-
-	client := &http.Client{}
-	response, err := client.Do(request)
+	subject := "Order.OrderCreated"
+	err = s.nats.Publish(subject, []byte("Hello NATS"))
 	if err != nil {
-		panic(err)
+		log.Printf("Error during publishing: %s", err)
 	}
-	defer response.Body.Close()
-
-	body, _ := ioutil.ReadAll(response.Body)
-	fmt.Println(body)
-
+	s.nats.Flush()
 	return &pb.Response{Result: common.SUCCESS, Data: responseUserId, Error: nil}, err
 }
 

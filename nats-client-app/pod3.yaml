@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nats-3
+  labels:
+    role: nats-cluster
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  hostname: "nats-3"
+  subdomain: "nats-cluster-route" # name of the cluster
+  volumes:
+
+    - name: "server-tls-certs"
+      secret:
+        secretName: "nats-server-tls-certs"
+
+    - name: "config"
+      configMap:
+        name: "nats-config"
+
+  initContainers:
+  - command: 
+    - /bin/sh
+    - -c
+    - "while ( ! nslookup nats-3.nats-cluster-route.default.svc.cluster.local ); do sleep 2; done"
+    name: check-dns
+    image: "busybox:1.28.0-glibc"
+
+  containers:
+    - name: nats
+      command: ["/gnatsd", "-DV", "--cluster", "nats://0.0.0.0:6222", "--config", "/etc/nats-config/nats.conf"]
+      image: "nats:1.0.4"
+
+      volumeMounts:
+
+      - name: "server-tls-certs"
+        mountPath: "/etc/nats-server-tls-certs/"
+
+      - name: "config"
+        mountPath: "/etc/nats-config/"
+
+      ports:
+        - name: clients
+          containerPort: 4222
+          protocol: TCP
+
+        - name: clustering
+          containerPort: 6222
+          protocol: TCP
