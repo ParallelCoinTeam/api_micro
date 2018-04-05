@@ -11,16 +11,34 @@ import (
 type Repository interface {
 	Create(user *pb.User, networkId string) (string, error)
 	Authenticate(req *pb.LoginRequest, networkId string) (*pb.User, error)
+	GetNetworkIdFromApiKey(apiKey string) (*pb.Network, error)
 }
 
 type PublicRepository struct {
 	db *gorm.DB
 }
 
+func (repo *PublicRepository) GetNetworkIdFromApiKey(apikey string) (*pb.Network, error) {
+
+	network := pb.Network{}
+	if err := repo.db.Where("api_key = ?", apikey).Find(&network).Error; err != nil {
+		return nil, err
+	}
+	return &network, nil
+}
 func (repo *PublicRepository) Create(user *pb.User, networkId string) (string, error) {
 
 	userId := uuid.NewV4().String()
-	user = &pb.User{Id: userId, NetworkId: networkId, FirstName: user.FirstName, LastName: user.LastName, Email: user.Email, Password: user.Password, IsAdmin: user.IsAdmin, CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)}
+	user = &pb.User{
+		Id:        userId,
+		NetworkId: networkId,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Password:  user.Password,
+		IsAdmin:   user.IsAdmin,
+		CreatedAt: time.Now().Format(time.RFC3339),
+		UpdatedAt: time.Now().Format(time.RFC3339)}
 
 	if err := repo.db.Create(user).Error; err != nil {
 		return "", err

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"log"
+
+	"google.golang.org/grpc/metadata"
 
 	"golang.org/x/net/context"
 
@@ -19,6 +21,31 @@ type service struct {
 
 func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, error) {
 
+	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc"
+	//fmt.Println(token)
+	meta, _ := metadata.FromIncomingContext(ctx)
+	fmt.Println(meta["authorization"])
+	type Claims struct {
+		ApiKey string `json:"api_key"`
+		jwt.StandardClaims
+	}
+	tokenClaims := Claims{}
+	tokenClaims1, _ := common.ParseValidatadJWTToken(meta["authorization"][0], "", tokenClaims)
+	fmt.Println(tokenClaims1)
+
+	/*
+		network, err := s.repo.GetNetworkIdFromApiKey(apiKey)
+		if err != nil {
+			return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+		}
+		fmt.Println(network)
+		fmt.Println(network.Id)
+		err1 := CheckAuthWithSecret(meta["authorization"][0], network.Secret)
+		if err1 != nil {
+			return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+		}
+		networkId := network.Id
+	*/
 	networkId := "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
 	userId, err := s.repo.Create(req, networkId)
 	if err != nil {
@@ -26,13 +53,61 @@ func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, err
 	}
 	responseUserId := map[string]string{"user_id": userId}
 
-	subject := "User.UserCreated"
-	err = s.nats.Publish(subject, []byte("Hello NATS"))
-	if err != nil {
-		log.Printf("Error during publishing: %s", err)
-	}
-	s.nats.Flush()
+	/*
+		subject := "User.UserCreated"
+		err = s.nats.Publish(subject, []byte("Hello NATS"))
+		if err != nil {
+			log.Printf("Error during publishing: %s", err)
+		}
+		s.nats.Flush()
+	*/
 	return &pb.Response{Result: common.SUCCESS, Data: responseUserId, Error: nil}, err
+}
+
+func CheckAuthWithSecret(tokenString string, secretString string) error {
+
+	type Claims struct {
+		ApiKey string `json:"api_key"`
+		jwt.StandardClaims
+	}
+	tokenClaims := Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, &tokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretString), nil
+	})
+
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	if token.Valid {
+		return nil
+	} else if ve, ok := err.(*jwt.ValidationError); ok {
+		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			return errors.New("That's not even a token")
+		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			// Token is either expired or not active yet
+			return errors.New("Timing is everything")
+		} else {
+			return errors.New("Couldn't handle this token")
+		}
+	} else {
+		return errors.New("Couldn't handle this token")
+	}
+}
+
+func CheckAuth(tokenString string) (string, error) {
+
+	type Claims struct {
+		ApiKey string `json:"api_key"`
+		jwt.StandardClaims
+	}
+	tokenClaims := Claims{}
+
+	token, _ := jwt.ParseWithClaims(tokenString, &tokenClaims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(common.SIGNING_KEY), nil
+	})
+	fmt.Println(token)
+	return tokenClaims.ApiKey, nil
 }
 
 func (s *service) Authenticate(ctx context.Context, req *pb.LoginRequest) (*pb.Response, error) {

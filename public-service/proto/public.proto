@@ -19,6 +19,17 @@ service PublicService {
     }
 }
 
+
+message Network {
+    string id = 1;
+    string name = 2;
+    string api_key = 3;
+    string secret = 4;
+    string status = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}
+
 message User {
     string id = 1;
     string network_id = 2;

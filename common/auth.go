@@ -37,3 +37,25 @@ func CheckAuth(tokenString string) (string, string, error) {
 		return "", "", errors.New("Couldn't handle this token")
 	}
 }
+
+func ParseValidatadJWTToken(tokenString string, tokenSecret string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(tokenSecret), nil
+	})
+
+	if token.Valid {
+		return token, nil
+	} else if ve, ok := err.(*jwt.ValidationError); ok {
+		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			return token, errors.New("That's not even a token")
+		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			// Token is either expired or not active yet
+			return token, errors.New("Timing is everything")
+		} else {
+			return token, errors.New("Couldn't handle this token:")
+		}
+	} else {
+		return token, errors.New("Couldn't handle this token:")
+	}
+
+}
