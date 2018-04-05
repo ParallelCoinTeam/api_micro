@@ -39,12 +39,12 @@ func main() {
 		break
 	}
 
-	subject := "Order.OrderCreated"
+	subject := "User.UserCreated"
 	nc.Subscribe(subject, func(m *nats.Msg) {
 		log.Printf("[Received on %q] %s", m.Subject, string(m.Data))
 
 		data := url.Values{}
-		data.Set("username", "omair5")
+		data.Set("username", "omair51")
 		request, err := http.NewRequest("POST", "http://kong-admin:8001/consumers", strings.NewReader(data.Encode()))
 		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 

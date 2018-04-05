@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # name: nats-clients-service
+  name: nats-cluster
+spec:
+  selector:
+    role: nats-cluster
+  ports:
+  - name: clients
+    port: 4222
+    targetPort: 4222

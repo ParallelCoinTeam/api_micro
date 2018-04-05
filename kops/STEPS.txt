@@ -1,0 +1,16 @@
+export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id --profile kops)
+export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key --profile kops)
+
+export NAME=meem.k8s.local
+export KOPS_STATE_STORE=s3://api-meem-com-state-store
+export VPC_ID=vpc-da92b0b3
+export NETWORK_CIDR=172.31.0.0/16
+
+
+aws ec2 describe-availability-zones --region us-east-2 --profile syed_profile
+
+kops create cluster --zones us-east-2a meem.k8s.local --node-count 0 --node-size t2.micro --master-size t2.micro
+
+kops create secret sshpublickey admin -i ~/.ssh/id_rsa.pub --name ${NAME} --state ${KOPS_STATE_STORE}
+kops update cluster ${NAME} --yes
+kops validate cluster

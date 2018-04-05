@@ -26,7 +26,7 @@ func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, err
 	}
 	responseUserId := map[string]string{"user_id": userId}
 
-	subject := "Order.OrderCreated"
+	subject := "User.UserCreated"
 	err = s.nats.Publish(subject, []byte("Hello NATS"))
 	if err != nil {
 		log.Printf("Error during publishing: %s", err)
