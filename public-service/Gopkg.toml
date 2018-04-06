@@ -43,7 +43,7 @@
 
 [[constraint]]
   name = "github.com/nats-io/go-nats"
-  version = "1.4.0"
+  version = "1.5.0"
 
 [[constraint]]
   name = "github.com/satori/go.uuid"
@@ -63,7 +63,7 @@
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "1.10.0"
+  version = "1.11.2"
 
 [prune]
   go-tests = true

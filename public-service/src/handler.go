@@ -10,7 +10,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	nats "github.com/nats-io/go-nats"
-	"github.com/syedomair/api_micro/common"
+	common "github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
 )
 
@@ -25,13 +25,17 @@ func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, err
 	//fmt.Println(token)
 	meta, _ := metadata.FromIncomingContext(ctx)
 	fmt.Println(meta["authorization"])
-	type Claims struct {
-		ApiKey string `json:"api_key"`
-		jwt.StandardClaims
-	}
-	tokenClaims := Claims{}
-	tokenClaims1, _ := common.ParseValidatadJWTToken(meta["authorization"][0], "", tokenClaims)
-	fmt.Println(tokenClaims1)
+	fmt.Println(meta["authorization"])
+	/*
+		type Claims struct {
+			ApiKey string `json:"api_key"`
+			jwt.StandardClaims
+		}
+		tokenClaims := Claims{}
+	*/
+	//tokenClaims1, _ := common.ParseValidatadJWTToken(meta["authorization"][0], "")
+	result, _ := common.GetAPIKey(meta["authorization"][0])
+	fmt.Println(result)
 
 	/*
 		network, err := s.repo.GetNetworkIdFromApiKey(apiKey)

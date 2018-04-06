@@ -2,6 +2,7 @@ package common
 
 import (
 	"errors"
+	"fmt"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -38,6 +39,14 @@ func CheckAuth(tokenString string) (string, string, error) {
 	}
 }
 
+func GetAPIKey(tokenString string) (string, error) {
+
+	token, _ := ParseValidatadJWTToken(tokenString, "")
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	fmt.Println(claims["api_key"])
+	return "result", nil
+}
 func ParseValidatadJWTToken(tokenString string, tokenSecret string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(tokenSecret), nil

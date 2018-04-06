@@ -55,7 +55,7 @@
     "hstore",
     "oid"
   ]
-  revision = "b2004221932bd6b13167ef654c81cffac36f7537"
+  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
   name = "github.com/nats-io/go-nats"
@@ -64,8 +64,8 @@
     "encoders/builtin",
     "util"
   ]
-  revision = "d66cb54e6b7bdd93f0b28afc8450d84c780dfb68"
-  version = "v1.4.0"
+  revision = "062418ea1c2181f52dc0f954f6204370519a868b"
+  version = "v1.5.0"
 
 [[projects]]
   name = "github.com/nats-io/nuid"
@@ -83,7 +83,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["common"]
-  revision = "cf7eeb44b3fdcefaf2fefe81c796a95f4e730752"
+  revision = "6a8b29aaed3b4f92521678dd42fda61d4ef5e9dd"
 
 [[projects]]
   branch = "master"
@@ -97,7 +97,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
+  revision = "b3c676e531a6dc479fa1b35ac961c13f5e2b4d2e"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -127,7 +127,7 @@
     "googleapis/api/annotations",
     "googleapis/rpc/status"
   ]
-  revision = "f8c8703595236ae70fdf8789ecb656ea0bcdcf46"
+  revision = "aae13d27a44d62f039eeeb93e74e893886673932"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -156,12 +156,12 @@
     "tap",
     "transport"
   ]
-  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"
-  version = "v1.10.0"
+  revision = "d89cded64628466c4ab532d1f0ba5c220459ebe8"
+  version = "v1.11.2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ddf682d18c5b421941fc353992cac0f8876cc44d02ccd55c155ec07e477063d4"
+  inputs-digest = "6f2d117de11e5b9ed150c0e4b7b125f211ed813778e0936c2954a67c88d1db67"
   solver-name = "gps-cdcl"
   solver-version = 1
