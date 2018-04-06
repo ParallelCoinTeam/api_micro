@@ -11,14 +11,14 @@ import (
 type Repository interface {
 	Create(user *pb.User, networkId string) (string, error)
 	Authenticate(req *pb.LoginRequest, networkId string) (*pb.User, error)
-	GetNetworkIdFromApiKey(apiKey string) (*pb.Network, error)
+	GetNetworkFromApiKey(apiKey string) (*pb.Network, error)
 }
 
 type PublicRepository struct {
 	db *gorm.DB
 }
 
-func (repo *PublicRepository) GetNetworkIdFromApiKey(apikey string) (*pb.Network, error) {
+func (repo *PublicRepository) GetNetworkFromApiKey(apikey string) (*pb.Network, error) {
 
 	network := pb.Network{}
 	if err := repo.db.Where("api_key = ?", apikey).Find(&network).Error; err != nil {

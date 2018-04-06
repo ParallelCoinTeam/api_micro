@@ -21,36 +21,25 @@ type service struct {
 
 func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, error) {
 
-	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc"
-	//fmt.Println(token)
 	meta, _ := metadata.FromIncomingContext(ctx)
-	fmt.Println(meta["authorization"])
-	fmt.Println(meta["authorization"])
-	/*
-		type Claims struct {
-			ApiKey string `json:"api_key"`
-			jwt.StandardClaims
-		}
-		tokenClaims := Claims{}
-	*/
-	//tokenClaims1, _ := common.ParseValidatadJWTToken(meta["authorization"][0], "")
-	result, _ := common.GetAPIKey(meta["authorization"][0])
-	fmt.Println(result)
+	apiKey, err := common.GetAPIKey(meta["authorization"][0])
+	if err != nil {
+		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+	}
 
-	/*
-		network, err := s.repo.GetNetworkIdFromApiKey(apiKey)
-		if err != nil {
-			return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
-		}
-		fmt.Println(network)
-		fmt.Println(network.Id)
-		err1 := CheckAuthWithSecret(meta["authorization"][0], network.Secret)
-		if err1 != nil {
-			return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
-		}
-		networkId := network.Id
-	*/
-	networkId := "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+	network, err := s.repo.GetNetworkFromApiKey(apiKey)
+	if err != nil {
+		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+	}
+	fmt.Println(network)
+	fmt.Println(network.Id)
+	token, err := ValidateJWTToken(meta["authorization"][0], network.Secret)
+	if err != nil {
+		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+	}
+	networkId := network.Id
+	fmt.Println(token)
+	//networkId := "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
 	userId, err := s.repo.Create(req, networkId)
 	if err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
