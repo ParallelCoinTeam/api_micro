@@ -12,7 +12,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gogo/protobuf/proto"
 	nats "github.com/nats-io/go-nats"
+	pb "github.com/syedomair/api_micro/public-service/proto"
 )
 
 func main() {
@@ -42,9 +44,20 @@ func main() {
 	subject := "User.UserCreated"
 	nc.Subscribe(subject, func(m *nats.Msg) {
 		log.Printf("[Received on %q] %s", m.Subject, string(m.Data))
+		userMsg := pb.UserMessage{}
+		err := proto.Unmarshal(m.Data, &userMsg)
+		if err != nil {
+			fmt.Println("Khalid")
+			fmt.Println(err)
+			fmt.Println("Omair")
+		}
+
+		fmt.Println("Khalid1")
+		fmt.Println(userMsg)
+		fmt.Println("Omair1")
 
 		data := url.Values{}
-		data.Set("username", "omair51")
+		data.Set("username", "omair511")
 		request, err := http.NewRequest("POST", "http://kong-admin:8001/consumers", strings.NewReader(data.Encode()))
 		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 

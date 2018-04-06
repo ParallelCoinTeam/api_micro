@@ -53,3 +53,6 @@ message LoginRequest {
     string password = 2;
 }
 
+message UserMessage {
+    string user_id = 1;
+}
