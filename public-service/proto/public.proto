@@ -55,4 +55,5 @@ message LoginRequest {
 
 message UserMessage {
     string user_id = 1;
+    string network_id = 2;
 }

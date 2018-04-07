@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: database-service
+  name: database-service1
 spec:
   type: ExternalName
   externalName: meem-db-instance.c8qfd5ux55rw.us-east-2.rds.amazonaws.com

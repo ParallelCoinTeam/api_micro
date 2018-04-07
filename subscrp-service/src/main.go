@@ -42,22 +42,25 @@ func main() {
 	}
 
 	subject := "User.UserCreated"
+	fmt.Println("1")
 	nc.Subscribe(subject, func(m *nats.Msg) {
+		fmt.Println("2")
 		log.Printf("[Received on %q] %s", m.Subject, string(m.Data))
 		userMsg := pb.UserMessage{}
 		err := proto.Unmarshal(m.Data, &userMsg)
 		if err != nil {
-			fmt.Println("Khalid")
+			fmt.Println("Syed Khalid")
 			fmt.Println(err)
 			fmt.Println("Omair")
 		}
 
+		fmt.Println(m.Data)
 		fmt.Println("Khalid1")
 		fmt.Println(userMsg)
 		fmt.Println("Omair1")
 
 		data := url.Values{}
-		data.Set("username", "omair511")
+		data.Set("username", "omair2")
 		request, err := http.NewRequest("POST", "http://kong-admin:8001/consumers", strings.NewReader(data.Encode()))
 		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 

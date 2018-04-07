@@ -15,7 +15,7 @@ import (
 func main() {
 	errors := make(chan error)
 	httpPort := "8180"
-	grpcPort := "50080"
+	grpcPort := "50081"
 	fmt.Println("HTTP PORT", httpPort)
 	fmt.Println("GRPC PORT", grpcPort)
 
@@ -41,11 +41,11 @@ func startGRPC(port string) error {
 	if err != nil {
 		return err
 	}
-	//nats, _ := CreateNATSConnection()
+	nats, _ := CreateNATSConnection()
 
 	s := grpc.NewServer()
-	//pb.RegisterPublicServiceServer(s, &service{repo, nats})
-	pb.RegisterPublicServiceServer(s, &service{repo, nil})
+	pb.RegisterPublicServiceServer(s, &service{repo, nats})
+	//pb.RegisterPublicServiceServer(s, &service{repo, nil})
 	return s.Serve(lis)
 }
 

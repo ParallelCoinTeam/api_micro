@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/dgrijalva/jwt-go"
-  packages = ["."]
-  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
-  version = "v3.2.0"
-
-[[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto"]
   revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
@@ -39,31 +33,6 @@
   version = "v1.3.1"
 
 [[projects]]
-  name = "github.com/jinzhu/gorm"
-  packages = [
-    ".",
-    "dialects/postgres"
-  ]
-  revision = "6ed508ec6a4ecb3531899a69cbc746ccf65a4166"
-  version = "v1.9.1"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/jinzhu/inflection"
-  packages = ["."]
-  revision = "04140366298a54a039076d798123ffa108fff46c"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/lib/pq"
-  packages = [
-    ".",
-    "hstore",
-    "oid"
-  ]
-  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
-
-[[projects]]
   name = "github.com/nats-io/go-nats"
   packages = [
     ".",
@@ -80,15 +49,9 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/syedomair/api_micro"
-  packages = ["common"]
+  packages = ["public-service/proto"]
   revision = "e5bcc16e126dd4921da691eedbcc980ca5a15d3b"
 
 [[projects]]
@@ -168,6 +131,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4f1eb0cd0a0445a2d33d7b08f1612241ddc291a24ed7f45c63538679b4d837b9"
+  inputs-digest = "a1aea52640cc6f1252e38dca36dd49480f11e73f0f5906250471bad6c76bb98a"
   solver-name = "gps-cdcl"
   solver-version = 1

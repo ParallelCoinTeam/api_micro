@@ -81,7 +81,7 @@ spec:
           - name: KONG_PG_PASSWORD
             value: kong
           - name: KONG_PG_HOST
-            value: database-service
+            value: meem-db-instance.c8qfd5ux55rw.us-east-2.rds.amazonaws.com
           - name: KONG_PROXY_ACCESS_LOG
             value: "/dev/stdout"
           - name: KONG_ADMIN_ACCESS_LOG

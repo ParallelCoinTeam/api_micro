@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gogo/protobuf/proto"
 	nats "github.com/nats-io/go-nats"
 	common "github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
@@ -43,14 +44,22 @@ func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, err
 	}
 	responseUserId := map[string]string{"user_id": userId}
 
-	userMessage := pb.UserMessage{UserId: userId}
+	fmt.Println("responUserId:", responseUserId)
+
+	userMessage := pb.UserMessage{UserId: userId, NetworkId: networkId}
+	fmt.Println("1")
+	data, _ := proto.Marshal(&userMessage)
+	fmt.Println("2")
 	subject := "User.UserCreated"
+	fmt.Println("3")
 	//err = s.nats.Publish(subject, []byte("Hello NATS"))
-	err = s.nats.Publish(subject, &userMessage)
+	err = s.nats.Publish(subject, data)
+	fmt.Println("4")
 	if err != nil {
 		log.Printf("Error during publishing: %s", err)
 	}
 	s.nats.Flush()
+	fmt.Println("5")
 	return &pb.Response{Result: common.SUCCESS, Data: responseUserId, Error: nil}, err
 }
 

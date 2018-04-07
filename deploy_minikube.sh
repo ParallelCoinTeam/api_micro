@@ -15,8 +15,21 @@ for d in */ ; do
     kubectl delete service ${d%-service/}-service 
   fi
 done
+
 kubectl delete service database-service
 kubectl delete secret db-secret
+
+#kubectl delete deployment kong
+#kubectl delete service kong-admin
+#kubectl delete service kong-admin-ssl
+#kubectl delete service kong-proxy-ssl
+#kubectl delete service kong-proxy
+
+
+
+
+#kubectl create -f db.yaml
+kubectl create -f secret.yaml
 
 echo "Deploying "
 echo "--------- "
@@ -35,5 +48,3 @@ for d in */ ; do
   fi
 done
 
-kubectl create -f db.yaml
-kubectl create -f secret.yaml
