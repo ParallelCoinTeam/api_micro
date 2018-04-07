@@ -15,7 +15,7 @@ import (
 func main() {
 	errors := make(chan error)
 	httpPort := "8180"
-	grpcPort := "50081"
+	grpcPort := "50080"
 	fmt.Println("HTTP PORT", httpPort)
 	fmt.Println("GRPC PORT", grpcPort)
 

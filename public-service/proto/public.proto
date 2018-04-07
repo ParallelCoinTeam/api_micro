@@ -19,7 +19,6 @@ service PublicService {
     }
 }
 
-
 message Network {
     string id = 1;
     string name = 2;
@@ -56,4 +55,12 @@ message LoginRequest {
 message UserMessage {
     string user_id = 1;
     string network_id = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string email = 5;
+}
+
+message UserTokenMessage {
+    string user_id = 1;
+    string token = 2;
 }

@@ -44,28 +44,35 @@ func (s *service) Register(ctx context.Context, req *pb.User) (*pb.Response, err
 	}
 	responseUserId := map[string]string{"user_id": userId}
 
-	fmt.Println("responUserId:", responseUserId)
-
+	//NATS Event Publish
 	userMessage := pb.UserMessage{UserId: userId, NetworkId: networkId}
-	fmt.Println("1")
 	data, _ := proto.Marshal(&userMessage)
-	fmt.Println("2")
-	subject := "User.UserCreated"
-	fmt.Println("3")
-	//err = s.nats.Publish(subject, []byte("Hello NATS"))
-	err = s.nats.Publish(subject, data)
-	fmt.Println("4")
+	err = s.nats.Publish("User.UserRegister", data)
 	if err != nil {
 		log.Printf("Error during publishing: %s", err)
 	}
 	s.nats.Flush()
-	fmt.Println("5")
 	return &pb.Response{Result: common.SUCCESS, Data: responseUserId, Error: nil}, err
 }
 
 func (s *service) Authenticate(ctx context.Context, req *pb.LoginRequest) (*pb.Response, error) {
 
-	networkId := "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+	meta, _ := metadata.FromIncomingContext(ctx)
+	apiKey, err := common.GetAPIKey(meta["authorization"][0])
+	if err != nil {
+		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+	}
+
+	network, err := s.repo.GetNetworkFromApiKey(apiKey)
+	if err != nil {
+		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+	}
+	_, err = common.ValidateJWTToken(meta["authorization"][0], network.Secret)
+	if err != nil {
+		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.DatabaseError()}, nil
+	}
+	networkId := network.Id
+	//networkId := "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
 
 	user, err := s.repo.Authenticate(req, networkId)
 	if err != nil {
@@ -93,6 +100,15 @@ func (s *service) Authenticate(ctx context.Context, req *pb.LoginRequest) (*pb.R
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedJwtToken, _ := token.SignedString(signingKey)
+
+	//NATS Event Publish
+	userMessage := pb.UserTokenMessage{UserId: userId, Token: signedJwtToken}
+	data, _ := proto.Marshal(&userMessage)
+	err = s.nats.Publish("User.UserLogin", data)
+	if err != nil {
+		log.Printf("Error during publishing: %s", err)
+	}
+	s.nats.Flush()
 
 	tokenStr := map[string]string{"token": signedJwtToken}
 	return &pb.Response{Result: common.SUCCESS, Data: tokenStr, Error: nil}, nil

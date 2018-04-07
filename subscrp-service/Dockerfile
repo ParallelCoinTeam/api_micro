@@ -8,7 +8,7 @@ COPY src .
 #RUN dep init && dep ensure
 COPY vendor vendor
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o subscrp-service -a -installsuffix cgo main.go 
+RUN CGO_ENABLED=0 GOOS=linux go build -o subscrp-service -a -installsuffix cgo main.go user.go
 
 FROM alpine:latest
 

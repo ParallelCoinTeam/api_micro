@@ -52,7 +52,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["public-service/proto"]
-  revision = "e5bcc16e126dd4921da691eedbcc980ca5a15d3b"
+  revision = "4ed17a20ec4be587633d7722df8a6e2c78a52ea7"
 
 [[projects]]
   branch = "master"
@@ -66,7 +66,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "b3c676e531a6dc479fa1b35ac961c13f5e2b4d2e"
+  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -96,7 +96,7 @@
     "googleapis/api/annotations",
     "googleapis/rpc/status"
   ]
-  revision = "aae13d27a44d62f039eeeb93e74e893886673932"
+  revision = "ce84044298496ef4b54b4a0a0909ba593cc60e30"
 
 [[projects]]
   name = "google.golang.org/grpc"

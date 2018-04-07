@@ -1,20 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"runtime"
-	"strings"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	nats "github.com/nats-io/go-nats"
-	pb "github.com/syedomair/api_micro/public-service/proto"
 )
 
 func main() {
@@ -41,42 +34,11 @@ func main() {
 		break
 	}
 
-	subject := "User.UserCreated"
-	fmt.Println("1")
-	nc.Subscribe(subject, func(m *nats.Msg) {
-		fmt.Println("2")
-		log.Printf("[Received on %q] %s", m.Subject, string(m.Data))
-		userMsg := pb.UserMessage{}
-		err := proto.Unmarshal(m.Data, &userMsg)
-		if err != nil {
-			fmt.Println("Syed Khalid")
-			fmt.Println(err)
-			fmt.Println("Omair")
-		}
-
-		fmt.Println(m.Data)
-		fmt.Println("Khalid1")
-		fmt.Println(userMsg)
-		fmt.Println("Omair1")
-
-		data := url.Values{}
-		data.Set("username", "omair2")
-		request, err := http.NewRequest("POST", "http://kong-admin:8001/consumers", strings.NewReader(data.Encode()))
-		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-		client := &http.Client{}
-		response, err := client.Do(request)
-		if err != nil {
-			panic(err)
-		}
-		defer response.Body.Close()
-		fmt.Println(response.Status)
-
-		body, _ := ioutil.ReadAll(response.Body)
-
-		var bodyInterface map[string]interface{}
-		json.Unmarshal(body, &bodyInterface)
-		//fmt.Println(string(bodyInterface))
+	nc.Subscribe("User.UserRegister", func(m *nats.Msg) {
+		HandleUserRegister(m)
+	})
+	nc.Subscribe("User.UserLogin", func(m *nats.Msg) {
+		HandleUserLogin(m)
 	})
 	runtime.Goexit()
 }
