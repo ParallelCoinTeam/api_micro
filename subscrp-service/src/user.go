@@ -48,27 +48,23 @@ func HandleUserLogin(m *nats.Msg) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Khalid")
-	fmt.Println(usrMsg.UserId)
-	fmt.Println("Khalid1")
-	/*
-		data := url.Values{}
-		data.Set("username", userMsg.UserId)
-		request, err := http.NewRequest("POST", "http://kong-admin:8001/consumers", strings.NewReader(data.Encode()))
-		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-		client := &http.Client{}
-		response, err := client.Do(request)
-		if err != nil {
-			panic(err)
-		}
-		defer response.Body.Close()
-		fmt.Println(response.Status)
+	data := url.Values{}
+	data.Set("key", userMsg.Token)
+	request, err := http.NewRequest("POST", "http://kong-admin:8001/consumers/"+userMsg.UserId+"/key-auth", strings.NewReader(data.Encode()))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-		body, _ := ioutil.ReadAll(response.Body)
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+	fmt.Println(response.Status)
 
-		var bodyInterface map[string]interface{}
-		json.Unmarshal(body, &bodyInterface)
-		//fmt.Println(string(bodyInterface))
-	*/
+	body, _ := ioutil.ReadAll(response.Body)
+
+	var bodyInterface map[string]interface{}
+	json.Unmarshal(body, &bodyInterface)
+	//fmt.Println(string(bodyInterface))
 }

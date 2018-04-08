@@ -102,7 +102,7 @@ func (s *service) Authenticate(ctx context.Context, req *pb.LoginRequest) (*pb.R
 	signedJwtToken, _ := token.SignedString(signingKey)
 
 	//NATS Event Publish
-	userMessage := pb.UserTokenMessage{UserId: userId, Token: signedJwtToken}
+	userMessage := pb.UserTokenMessage{UserId: user.Id, Token: signedJwtToken}
 	data, _ := proto.Marshal(&userMessage)
 	err = s.nats.Publish("User.UserLogin", data)
 	if err != nil {
