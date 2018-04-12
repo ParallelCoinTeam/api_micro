@@ -18,3 +18,6 @@ docker:
 
 race:
 	go test ./... -race
+
+test:
+	go test -v ./... 

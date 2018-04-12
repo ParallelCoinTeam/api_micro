@@ -5,8 +5,11 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
+	gokitlog "github.com/go-kit/kit/log"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	common "github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -27,7 +30,7 @@ func main() {
 	}
 }
 func startGRPC(port string) error {
-	db, err := CreateConnection()
+	db, err := common.CreateDBConnection()
 	defer db.Close()
 
 	if err != nil {
@@ -36,16 +39,24 @@ func startGRPC(port string) error {
 		fmt.Println("Connected to DB")
 	}
 
-	repo := &PublicRepository{db}
+	var logger gokitlog.Logger
+	{
+		logger = gokitlog.NewLogfmtLogger(os.Stdout)
+		logger = gokitlog.With(logger, "TIME", gokitlog.DefaultTimestamp)
+		logger = gokitlog.With(logger, "CALLER", gokitlog.DefaultCaller)
+	}
+
+	repo := &PublicRepository{db, logger}
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
 	}
-	nats, _ := CreateNATSConnection()
+	natsCon, _ := common.CreateNATSConnection()
+	nats := &NatsWrapper{natsCon, logger}
 
 	s := grpc.NewServer()
-	pb.RegisterPublicServiceServer(s, &service{repo, nats})
-	//pb.RegisterPublicServiceServer(s, &service{repo, nil})
+	pb.RegisterPublicServiceServer(s, &Env{repo, nats, logger})
+	//pb.RegisterPublicServiceServer(s, &Env{repo, nil, logger})
 	return s.Serve(lis)
 }
 

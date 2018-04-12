@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 
 	"github.com/syedomair/api_micro/common"
@@ -13,10 +15,11 @@ const (
 	event     = "OrderCreated"
 )
 
-type service struct {
+type Service struct {
 	repo Repository
 }
 
+/*
 func (s *service) Create(ctx context.Context, req *pb.Role) (*pb.Response, error) {
 
 	networkId, _ := ctx.Value("network_id").(string)
@@ -47,6 +50,7 @@ func (s *service) GetAll(ctx context.Context, req *pb.RequestQuery) (*pb.Respons
 	roleList := &pb.RoleList{Offset: offset, Limit: limit, Count: count, List: roles}
 	return &pb.ResponseList{Result: common.SUCCESS, Error: nil, Data: roleList}, nil
 }
+*/
 
 /*
 // publishOrderCreated publish an event via NATS server
@@ -70,10 +74,13 @@ func publishOrderCreated(order *pb.Role) {
 	log.Println("Published message on subject " + subject)
 }
 */
-func (s *service) GetRole(ctx context.Context, req *pb.Role) (*pb.ResponseRole, error) {
+func (s *Service) GetRole(ctx context.Context, req *pb.Role) (*pb.ResponseRole, error) {
 
 	networkId, _ := ctx.Value("network_id").(string)
-
+	fmt.Println("Syed Khalid Omair")
+	fmt.Println("networkId")
+	fmt.Println(networkId)
+	fmt.Println("1Syed Khalid Omair")
 	role, err := s.repo.Get(req.Id, networkId)
 	if err != nil {
 		return &pb.ResponseRole{Result: common.FAILURE, Data: nil, Error: common.CommonError(err.Error())}, nil
@@ -81,6 +88,7 @@ func (s *service) GetRole(ctx context.Context, req *pb.Role) (*pb.ResponseRole, 
 	return &pb.ResponseRole{Result: common.SUCCESS, Data: role, Error: nil}, nil
 }
 
+/*
 func (s *service) UpdateRole(ctx context.Context, req *pb.Role) (*pb.Response, error) {
 
 	networkId, _ := ctx.Value("network_id").(string)
@@ -104,3 +112,4 @@ func (s *service) DeleteRole(ctx context.Context, req *pb.Role) (*pb.Response, e
 	responseRoleId := map[string]string{"role_id": req.Id}
 	return &pb.Response{Result: common.SUCCESS, Data: responseRoleId, Error: nil}, nil
 }
+*/

@@ -47,7 +47,7 @@ func startGRPC(port string) error {
 	}
 	//s := grpc.NewServer()
 	s := grpc.NewServer(grpc.UnaryInterceptor(AuthInterceptor))
-	pb.RegisterRoleServiceServer(s, &service{repo})
+	pb.RegisterRoleServiceServer(s, &Service{repo})
 	return s.Serve(lis)
 }
 

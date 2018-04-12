@@ -32,6 +32,8 @@ spec:
           value: "/etc/nats-client-tls-certs/client.pem"
         - name: NATS_KEY
           value: "/etc/nats-client-tls-certs/client-key.pem"
+        - name: DB_SERVER
+          value: "meem-db-instance.c8qfd5ux55rw.us-east-2.rds.amazonaws.com"
         - name: SECRET_USERNAME
           valueFrom:
             secretKeyRef:

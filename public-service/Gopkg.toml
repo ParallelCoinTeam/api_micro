@@ -26,8 +26,8 @@
 
 
 [[constraint]]
-  name = "github.com/dgrijalva/jwt-go"
-  version = "3.2.0"
+  name = "github.com/go-kit/kit"
+  version = "0.7.0"
 
 [[constraint]]
   name = "github.com/gogo/protobuf"
@@ -67,7 +67,7 @@
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "1.11.2"
+  version = "1.11.3"
 
 [prune]
   go-tests = true

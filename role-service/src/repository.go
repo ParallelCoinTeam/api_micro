@@ -1,26 +1,25 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/jinzhu/gorm"
-	uuid "github.com/satori/go.uuid"
 	pb "github.com/syedomair/api_micro/role-service/proto"
 )
 
 type Repository interface {
-	Create(role *pb.Role, networkId string) (string, error)
+	//Create(role *pb.Role, networkId string) (string, error)
 	Get(roleId string, networkId string) (*pb.Role, error)
-	GetAll(limit string, offset string, orderby string, sort string, networkId string) ([]*pb.Role, string, error)
-	Update(role *pb.Role, networkId string) error
-	Delete(role *pb.Role, networkId string) error
+	/*
+		GetAll(limit string, offset string, orderby string, sort string, networkId string) ([]*pb.Role, string, error)
+		Update(role *pb.Role, networkId string) error
+		Delete(role *pb.Role, networkId string) error
+	*/
 }
 
 type RoleRepository struct {
 	db *gorm.DB
 }
 
+/*
 func (repo *RoleRepository) Create(role *pb.Role, networkId string) (string, error) {
 
 	roleId := uuid.NewV4().String()
@@ -48,7 +47,7 @@ func (repo *RoleRepository) GetAll(limit string, offset string, orderby string, 
 	}
 	return roles, count, nil
 }
-
+*/
 func (repo *RoleRepository) Get(roleId string, networkId string) (*pb.Role, error) {
 	role := pb.Role{}
 	if err := repo.db.Where("network_id = ?", networkId).Where("id = ?", roleId).Find(&role).Error; err != nil {
@@ -57,6 +56,7 @@ func (repo *RoleRepository) Get(roleId string, networkId string) (*pb.Role, erro
 	return &role, nil
 }
 
+/*
 func (repo *RoleRepository) Update(role *pb.Role, networkId string) error {
 	if err := repo.db.Model(role).Update(&role).Error; err != nil {
 		return err
@@ -75,3 +75,4 @@ func (repo *RoleRepository) Delete(role *pb.Role, networkId string) error {
 	}
 	return nil
 }
+*/

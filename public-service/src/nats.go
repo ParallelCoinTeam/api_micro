@@ -1,36 +1,51 @@
 package main
 
 import (
-	"log"
-	"os"
-	"time"
-
+	log "github.com/go-kit/kit/log"
+	"github.com/gogo/protobuf/proto"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	nats "github.com/nats-io/go-nats"
+	pb "github.com/syedomair/api_micro/public-service/proto"
 )
 
-func CreateNATSConnection() (*nats.Conn, error) {
+type Nats interface {
+	PublishRegisterEvent(string, string) error
+	PublishAuthEvent(string, string) error
+}
 
-	serverList := os.Getenv("NATS_SERVER")
-	rootCACertFile := os.Getenv("NATS_CACERT")
-	clientCertFile := os.Getenv("NATS_CERT")
-	clientKeyFile := os.Getenv("NATS_KEY")
+type NatsWrapper struct {
+	nats   *nats.Conn
+	logger log.Logger
+}
 
-	// Connect options
-	rootCA := nats.RootCAs(rootCACertFile)
-	clientCert := nats.ClientCert(clientCertFile, clientKeyFile)
-	alwaysReconnect := nats.MaxReconnects(-1)
+func (natsWrap *NatsWrapper) PublishRegisterEvent(userId string, networkId string) error {
 
-	var nc *nats.Conn
-	var err error
-	for {
-		nc, err = nats.Connect(serverList, rootCA, clientCert, alwaysReconnect)
-		if err != nil {
-			log.Printf("Error while connecting to NATS, backing off for a sec... (error: %s)", err)
-			time.Sleep(1 * time.Second)
-			continue
-		}
-		break
+	natsWrap.logger.Log("ACTION", "PublishRegisterEvent", "SPOT", "method start")
+	userMessage := pb.UserMessage{UserId: userId, NetworkId: networkId}
+	data, _ := proto.Marshal(&userMessage)
+	err := natsWrap.nats.Publish("User.UserRegister", data)
+	if err != nil {
+		natsWrap.logger.Log("Error during publishing: ", err)
+		return err
 	}
-	return nc, err
+	natsWrap.nats.Flush()
+
+	natsWrap.logger.Log("ACTION", "PublishRegisterEvent", "SPOT", "method end")
+	return nil
+}
+
+func (natsWrap *NatsWrapper) PublishAuthEvent(userId string, signedJwtToken string) error {
+
+	natsWrap.logger.Log("ACTION", "PublishAuthEvent", "SPOT", "method start")
+	userMessage := pb.UserTokenMessage{UserId: userId, Token: signedJwtToken}
+	data, _ := proto.Marshal(&userMessage)
+	err := natsWrap.nats.Publish("User.UserLogin", data)
+	if err != nil {
+		natsWrap.logger.Log("Error during publishing: ", err)
+		return err
+	}
+	natsWrap.nats.Flush()
+	natsWrap.logger.Log("ACTION", "PublishAuthEvent", "SPOT", "method end")
+
+	return nil
 }

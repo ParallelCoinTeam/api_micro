@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#allowed values: mini, stag, prod
+SERVER_TYPE=${1:-mini}
+
+echo "Deploying on server: "$SERVER_TYPE
+
+
 eval $(minikube docker-env)
 
 AWS_ECR="755455355830.dkr.ecr.us-east-2.amazonaws.com"
@@ -28,7 +34,7 @@ kubectl delete secret db-secret
 
 
 
-#kubectl create -f db.yaml
+kubectl create -f db.yaml
 kubectl create -f secret.yaml
 
 echo "Deploying "
@@ -43,7 +49,7 @@ for d in */ ; do
     make build
     make reverse
     make AWS_ECR="$AWS_ECR" REPOSITORY_NAME="${d%/}" docker 
-    kubectl create -f ${d%-service/}.yaml
+    kubectl create -f ${d%-service/}-$SERVER_TYPE.yaml
     cd ..
   fi
 done

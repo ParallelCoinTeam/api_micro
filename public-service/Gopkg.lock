@@ -8,6 +8,24 @@
   version = "v3.2.0"
 
 [[projects]]
+  name = "github.com/go-kit/kit"
+  packages = ["log"]
+  revision = "ca4112baa34cb55091301bdc13b1420a122b1b9e"
+  version = "v0.7.0"
+
+[[projects]]
+  name = "github.com/go-logfmt/logfmt"
+  packages = ["."]
+  revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
+  version = "v0.3.0"
+
+[[projects]]
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  revision = "259ab82a6cad3992b4e21ff5cac294ccb06474bc"
+  version = "v1.7.0"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto"]
   revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
@@ -55,6 +73,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/kr/logfmt"
+  packages = ["."]
+  revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
+
+[[projects]]
+  branch = "master"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -89,7 +113,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["common"]
-  revision = "e5bcc16e126dd4921da691eedbcc980ca5a15d3b"
+  revision = "5789a176966a28251cd38fa7ffa0c5face703fc9"
 
 [[projects]]
   branch = "master"
@@ -103,7 +127,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "b3c676e531a6dc479fa1b35ac961c13f5e2b4d2e"
+  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -133,7 +157,7 @@
     "googleapis/api/annotations",
     "googleapis/rpc/status"
   ]
-  revision = "aae13d27a44d62f039eeeb93e74e893886673932"
+  revision = "51d0944304c3cbce4afe9e5247e21100037bff78"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -162,12 +186,12 @@
     "tap",
     "transport"
   ]
-  revision = "d89cded64628466c4ab532d1f0ba5c220459ebe8"
-  version = "v1.11.2"
+  revision = "d11072e7ca9811b1100b80ca0269ac831f06d024"
+  version = "v1.11.3"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4f1eb0cd0a0445a2d33d7b08f1612241ddc291a24ed7f45c63538679b4d837b9"
+  inputs-digest = "9eba281d4ef71ba745253bd004a29f6f56ef7bf0de0aba18b97c2714ccac5142"
   solver-name = "gps-cdcl"
   solver-version = 1

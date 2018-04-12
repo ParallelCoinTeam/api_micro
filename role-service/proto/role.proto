@@ -5,6 +5,7 @@ package role;
 import "google/api/annotations.proto";
 
 service RoleService {
+/*
     rpc Create(Role) returns(Response) {
         option(google.api.http) = {
             post: "/v1/roles"
@@ -16,11 +17,13 @@ service RoleService {
             get: "/v1/roles"
         };
     }
+*/
     rpc GetRole(Role) returns(ResponseRole) {
         option(google.api.http) = {
             get: "/v1/roles/{id}"
         };
     }
+/*
     rpc UpdateRole(Role) returns(Response) {
         option(google.api.http) = {
             patch: "/v1/roles/{id}"
@@ -32,6 +35,7 @@ service RoleService {
             delete: "/v1/roles/{id}"
         };
     }
+*/
 }
 
 message Role {

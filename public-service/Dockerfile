@@ -9,7 +9,7 @@ COPY proto proto
 #RUN dep init && dep ensure
 COPY vendor vendor
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o public-service -a -installsuffix cgo main.go repository.go handler.go database.go nats.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o public-service -a -installsuffix cgo main.go repository.go handler.go nats.go
 
 FROM alpine:latest
 

@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	log "github.com/go-kit/kit/log"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 	pb "github.com/syedomair/api_micro/public-service/proto"
@@ -15,7 +16,8 @@ type Repository interface {
 }
 
 type PublicRepository struct {
-	db *gorm.DB
+	db     *gorm.DB
+	logger log.Logger
 }
 
 func (repo *PublicRepository) GetNetworkFromApiKey(apikey string) (*pb.Network, error) {
@@ -26,6 +28,7 @@ func (repo *PublicRepository) GetNetworkFromApiKey(apikey string) (*pb.Network, 
 	}
 	return &network, nil
 }
+
 func (repo *PublicRepository) Create(user *pb.User, networkId string) (string, error) {
 
 	userId := uuid.NewV4().String()
