@@ -5,9 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 
-	gokitlog "github.com/go-kit/kit/log"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	common "github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
@@ -39,12 +37,7 @@ func startGRPC(port string) error {
 		fmt.Println("Connected to DB")
 	}
 
-	var logger gokitlog.Logger
-	{
-		logger = gokitlog.NewLogfmtLogger(os.Stdout)
-		logger = gokitlog.With(logger, "TIME", gokitlog.DefaultTimestamp)
-		logger = gokitlog.With(logger, "CALLER", gokitlog.DefaultCaller)
-	}
+	logger := common.GetLogger()
 
 	repo := &PublicRepository{db, logger}
 	lis, err := net.Listen("tcp", ":"+port)
@@ -56,6 +49,7 @@ func startGRPC(port string) error {
 
 	s := grpc.NewServer()
 	pb.RegisterPublicServiceServer(s, &Env{repo, nats, logger})
+
 	//pb.RegisterPublicServiceServer(s, &Env{repo, nil, logger})
 	return s.Serve(lis)
 }

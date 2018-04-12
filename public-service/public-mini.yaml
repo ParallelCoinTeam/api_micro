@@ -25,7 +25,7 @@ spec:
         image: 755455355830.dkr.ecr.us-east-2.amazonaws.com/public-service
         env:
         - name: NATS_SERVER
-          value: "nats://nats-cluster.default.svc.cluster.local:4222"
+          #value: "nats://nats-cluster.default.svc.cluster.local:4222"
         - name: NATS_CACERT
           value: "/etc/nats-client-tls-certs/ca.pem"
         - name: NATS_CERT
