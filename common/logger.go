@@ -6,7 +6,7 @@ import (
 	gokitlog "github.com/go-kit/kit/log"
 )
 
-func GetLogger() {
+func GetLogger() gokitlog.Logger {
 
 	var logger gokitlog.Logger
 	{
