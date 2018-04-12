@@ -5,8 +5,8 @@ WORKDIR /go/src/github.com/syedomair/api_micro/public-service
 
 COPY src .
 COPY proto proto
-#RUN go get -u github.com/golang/dep/cmd/dep
-#RUN dep init && dep ensure
+RUN go get -u github.com/golang/dep/cmd/dep
+RUN dep init && dep ensure
 COPY vendor vendor
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o public-service -a -installsuffix cgo main.go repository.go handler.go nats.go

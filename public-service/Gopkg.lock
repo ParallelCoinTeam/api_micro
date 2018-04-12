@@ -113,7 +113,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["common"]
-  revision = "5789a176966a28251cd38fa7ffa0c5face703fc9"
+  revision = "11ad1cf1386208fc1d04dc3cf67772f5f388ef19"
 
 [[projects]]
   branch = "master"
@@ -192,6 +192,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9eba281d4ef71ba745253bd004a29f6f56ef7bf0de0aba18b97c2714ccac5142"
+  inputs-digest = "744da14ca0e629736c0e04f38bb5eea41d1bd59c6f8ace7a230f45580b748308"
   solver-name = "gps-cdcl"
   solver-version = 1
