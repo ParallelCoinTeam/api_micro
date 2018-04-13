@@ -12,4 +12,8 @@ const (
 	ValidEmail             = "email@gmail.com"
 	InValidEmail           = "emailgmail.com"
 	NetworkId              = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+	NetworkName            = "Test Network"
+	NetworkStatus          = "1"
+	UserId                 = "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f"
+	IsAdmin                = "1"
 )
