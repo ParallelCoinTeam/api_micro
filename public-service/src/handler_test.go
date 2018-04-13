@@ -7,15 +7,16 @@ import (
 
 	common "github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
+	testdata "github.com/syedomair/api_micro/testdata"
 	"google.golang.org/grpc/metadata"
 )
 
 func TestCreate(t *testing.T) {
 	env := Env{repo: &mockDB{}, nats: &mockNATS{}, logger: common.GetLogger()}
-	md := metadata.New(map[string]string{"authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc"})
+	md := metadata.New(map[string]string{"authorization": testdata.TestValidPublicToken})
 	ctx := metadata.NewIncomingContext(context.Background(), md)
 
-	user := &pb.User{FirstName: "First Name 1", LastName: "Last Name 1", Email: "email1@gmail.com", Password: "123456"}
+	user := &pb.User{FirstName: testdata.ValidFirstName, LastName: test.ValidLastName, Email: testdata.ValidEmail, Password: testdata.ValidPassword}
 	response, _ := env.Register(ctx, user)
 
 	//TEST 1 correct authorization
@@ -24,7 +25,7 @@ func TestCreate(t *testing.T) {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
 	}
 
-	md = metadata.New(map[string]string{"authorization": "lyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc"})
+	md = metadata.New(map[string]string{"authorization": testdata.TestInValidPublicToken})
 	ctx = metadata.NewIncomingContext(context.Background(), md)
 
 	response, _ = env.Register(ctx, user)
