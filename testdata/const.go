@@ -3,6 +3,8 @@ package testdata
 const (
 	TestValidPublicToken   = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc"
 	TestInValidPublicToken = "lyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc"
+	APIKey                 = "the$network#api*key"
+	APISecret              = "the$network#api*secret"
 	ValidFirstName         = "John"
 	ValidLastName          = "Smith"
 	ValidPassword          = "123456"

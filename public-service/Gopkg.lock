@@ -127,8 +127,11 @@
 [[projects]]
   branch = "master"
   name = "github.com/syedomair/api_micro"
-  packages = ["common"]
-  revision = "01f1ea66bd9f4c9723ac90af3c38e59b8811637a"
+  packages = [
+    "common",
+    "testdata"
+  ]
+  revision = "9bcd3da11112b7bcfbb324ed7ce48c8ab777abf3"
 
 [[projects]]
   branch = "master"
@@ -172,7 +175,7 @@
     "googleapis/api/annotations",
     "googleapis/rpc/status"
   ]
-  revision = "51d0944304c3cbce4afe9e5247e21100037bff78"
+  revision = "7fd901a49ba6a7f87732eb344f6e3c5b19d1b200"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -207,6 +210,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3fd835d77bb085e00a6baabe33099fcd7db7da4d311be7d2c5352ef5ddff36fc"
+  inputs-digest = "8670dcfde55c0b4a7121ac8790f3be8f686d5efd3fc9e5b162b8e9a103315673"
   solver-name = "gps-cdcl"
   solver-version = 1
