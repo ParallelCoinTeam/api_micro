@@ -34,7 +34,7 @@ kubectl delete secret db-secret
 
 
 
-kubectl create -f db.yaml
+#kubectl create -f db.yaml
 kubectl create -f secret.yaml
 
 echo "Deploying "

@@ -34,6 +34,10 @@
   version = "0.7.0"
 
 [[constraint]]
+  name = "github.com/go-ozzo/ozzo-validation"
+  version = "3.3.0"
+
+[[constraint]]
   name = "github.com/gogo/protobuf"
   version = "1.0.0"
 

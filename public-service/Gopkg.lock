@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/asaskevich/govalidator"
+  packages = ["."]
+  revision = "ccb8e960c48f04d6935e72476ae4a51028f9e22f"
+  version = "v9"
+
+[[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
@@ -18,6 +24,15 @@
   packages = ["."]
   revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
   version = "v0.3.0"
+
+[[projects]]
+  name = "github.com/go-ozzo/ozzo-validation"
+  packages = [
+    ".",
+    "is"
+  ]
+  revision = "85dcd8368eba387e65a03488b003e233994e87e9"
+  version = "v3.3"
 
 [[projects]]
   name = "github.com/go-stack/stack"
@@ -113,7 +128,7 @@
   branch = "master"
   name = "github.com/syedomair/api_micro"
   packages = ["common"]
-  revision = "2359f4bef5aa16fd40b0847dadad0013b96aa1cd"
+  revision = "01f1ea66bd9f4c9723ac90af3c38e59b8811637a"
 
 [[projects]]
   branch = "master"
@@ -192,6 +207,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "744da14ca0e629736c0e04f38bb5eea41d1bd59c6f8ace7a230f45580b748308"
+  inputs-digest = "3fd835d77bb085e00a6baabe33099fcd7db7da4d311be7d2c5352ef5ddff36fc"
   solver-name = "gps-cdcl"
   solver-version = 1
