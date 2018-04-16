@@ -73,8 +73,8 @@ func (mdb *mockDB) GetNetworkFromApiKey(apiKey string) (*pb.Network, error) {
 	return &pb.Network{
 		Id:        testdata.NetworkId,
 		Name:      testdata.NetworkName,
-		ApiKey:    testdata.ApiKey,
-		Secret:    testdata.ApiSecret,
+		ApiKey:    testdata.APIKey,
+		Secret:    testdata.APISecret,
 		Status:    testdata.NetworkStatus,
 		CreatedAt: time.Now().Format(time.RFC3339),
 		UpdatedAt: time.Now().Format(time.RFC3339)}, nil

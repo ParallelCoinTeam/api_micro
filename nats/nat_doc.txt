@@ -1,0 +1,503 @@
+
+https://gist.github.com/wallyqs/696b81427df7c239fb34946eb1ae9f92
+
+
+Secure NATS Cluster in Kubernetes
+Creating the certificates
+Generating the Root CA Certs
+{
+    "CN": "My Custom CA",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "US",
+            "L": "CA",
+            "O": "My Company",
+            "ST": "San Francisco",
+            "OU": "Org Unit 1"
+        }
+    ]
+}
+(
+  cd certs
+
+  # CA certs
+  cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+)
+Setup the profiles for the Root CA, we will have 3 main profiles: one for the clients connecting, one for the servers, and another one for the full mesh routing connections between the servers.
+
+{
+    "signing": {
+        "default": {
+            "expiry": "43800h"
+        },
+        "profiles": {
+            "server": {
+                "expiry": "43800h",
+                "usages": [
+                    "signing",
+                    "key encipherment",
+                    "server auth"
+                ]
+            },
+            "client": {
+                "expiry": "43800h",
+                "usages": [
+                    "signing",
+                    "key encipherment",
+                    "client auth"
+                ]
+            },
+            "route": {
+                "expiry": "43800h",
+                "usages": [
+                    "signing",
+                    "key encipherment",
+                    "server auth",
+                    "client auth"
+                ]
+            }
+        }
+    }
+}
+Generating the NATS server certs
+First we generate the certificates for the server.
+
+{
+    "CN": "nats server",
+    "hosts": [
+        "*.nats-cluster.default.svc",
+        "nats-cluster.default.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "US",
+            "L": "CA",
+            "ST": "San Francisco"
+        }
+    ]
+}
+(
+  # Generating the peer certificates
+  cd certs
+  cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=server server.json | cfssljson -bare server
+)
+Generating the NATS server routes certs
+We will also be setting up TLS for the full mesh routes.
+
+{
+    "CN": "nats route",
+    "hosts": [
+        "*.nats-cluster-route.default.svc",
+        "*.nats-cluster-route.default.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "US",
+            "L": "CA",
+            "ST": "San Francisco"
+        }
+    ]
+}
+# Generting the peer certificates
+(
+  cd certs
+  cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=route route.json | cfssljson -bare route
+)
+Generating the certs for the clients
+{
+    "CN": "nats client",
+    "hosts": [""],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "US",
+            "L": "CA",
+            "ST": "San Francisco"
+        }
+    ]
+}
+(
+  cd certs
+  # Generating NATS client certs
+  cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=client client.json | cfssljson -bare client
+)
+Creating the services
+We will have two services:
+
+A nats-cluster-route headless service that will be used for the full mesh
+A nats-cluster service that will be used for the clients to discover NATS nodes to connect to.
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-cluster-route
+spec:
+  selector:
+    role: nats-cluster
+  clusterIP: None
+  ports:
+  - name: routes
+    port: 6222
+    targetPort: 6222
+apiVersion: v1
+kind: Service
+metadata:
+  # name: nats-clients-service
+  name: nats-cluster
+spec:
+  selector:
+    role: nats-cluster
+  ports:
+  - name: clients
+    port: 4222
+    targetPort: 4222
+kubectl create -f nats-cluster-routes-svc.yaml 
+kubectl create -f nats-cluster-clients-svc.yaml
+Creating the secrets
+cd certs
+kubectl create secret generic nats-server-tls-certs --from-file ca.pem --from-file route-key.pem --from-file route.pem --from-file server-key.pem --from-file server.pem
+kubectl create secret generic nats-client-tls-certs --from-file ca.pem --from-file client-key.pem --from-file client.pem
+Creating the configmap
+tls {
+  cert_file = '/etc/nats-server-tls-certs/server.pem'
+  key_file =  '/etc/nats-server-tls-certs/server-key.pem'
+  ca_file = '/etc/nats-server-tls-certs/ca.pem'
+
+  timeout = 5
+}
+
+cluster {
+
+  tls {
+    cert_file = '/etc/nats-server-tls-certs/route.pem'
+    key_file =  '/etc/nats-server-tls-certs/route-key.pem'
+    ca_file = '/etc/nats-server-tls-certs/ca.pem'
+
+    timeout = 5
+  }
+
+  # Routes advertising does not work very well for us here,
+  # since in case of using TLS then what is advertised are
+  # the IP:Port, so host verification would fail anyway.
+  # 
+  # NATS clients instead use another service which is solely
+  # for the purpose of clients connecting to the client port.
+  # 
+  no_advertise = true
+
+  routes = [
+    nats://nats-1.nats-cluster-route.default.svc:6222
+    nats://nats-2.nats-cluster-route.default.svc:6222
+    nats://nats-3.nats-cluster-route.default.svc:6222
+  ]
+
+}
+kubectl create configmap nats-config --from-file nats.conf
+Creating the pods
+Each one of the pods will be matching on the selector used to identify this particular NATS cluster and be provided its own A record.
+
+Before the pod starts, need to confirm that the DNS record is ready with an init container.
+
+NATS Pod 1
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nats-1
+  labels:
+    role: nats-cluster
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  hostname: "nats-1"
+  subdomain: "nats-cluster-route"
+  volumes:
+
+    - name: "server-tls-certs"
+      secret:
+        secretName: "nats-server-tls-certs"
+
+    - name: "config"
+      configMap:
+        name: "nats-config"
+
+  initContainers:
+  - command: 
+    - /bin/sh
+    - -c
+    - "while ( ! nslookup nats-1.nats-cluster-route.default.svc.cluster.local ); do sleep 2; done"
+    name: check-dns
+    image: "busybox:1.28.0-glibc"
+
+  containers:
+    - name: nats
+      command: ["/gnatsd", "-DV", "--cluster", "nats://0.0.0.0:6222", "--config", "/etc/nats-config/nats.conf"]
+      image: "nats:1.0.4"
+
+      volumeMounts:
+
+      - name: "server-tls-certs"
+        mountPath: "/etc/nats-server-tls-certs/"
+
+      - name: "config"
+        mountPath: "/etc/nats-config/"
+
+      ports:
+        - name: clients
+          containerPort: 4222
+          protocol: TCP
+
+        - name: clustering
+          containerPort: 6222
+          protocol: TCP
+NATS Pod 2
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nats-2
+  labels:
+    role: nats-cluster
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  hostname: "nats-2"
+  subdomain: "nats-cluster-route"
+  volumes:
+
+    - name: "server-tls-certs"
+      secret:
+        secretName: "nats-server-tls-certs"
+
+    - name: "config"
+      configMap:
+        name: "nats-config"
+
+  initContainers:
+  - command: 
+    - /bin/sh
+    - -c
+    - "while ( ! nslookup nats-2.nats-cluster-route.default.svc.cluster.local ); do sleep 2; done"
+    name: check-dns
+    image: "busybox:1.28.0-glibc"
+
+  containers:
+    - name: nats
+      command: ["/gnatsd", "-DV", "--cluster", "nats://0.0.0.0:6222", "--config", "/etc/nats-config/nats.conf"]
+      image: "nats:1.0.4"
+
+      volumeMounts:
+
+      - name: "server-tls-certs"
+        mountPath: "/etc/nats-server-tls-certs/"
+
+      - name: "config"
+        mountPath: "/etc/nats-config/"
+
+      ports:
+        - name: clients
+          containerPort: 4222
+          protocol: TCP
+
+        - name: clustering
+          containerPort: 6222
+          protocol: TCP
+NATS Pod 3
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nats-3
+  labels:
+    role: nats-cluster
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  hostname: "nats-3"
+  subdomain: "nats-cluster-route" # name of the cluster
+  volumes:
+
+    - name: "server-tls-certs"
+      secret:
+        secretName: "nats-server-tls-certs"
+
+    - name: "config"
+      configMap:
+        name: "nats-config"
+
+  initContainers:
+  - command: 
+    - /bin/sh
+    - -c
+    - "while ( ! nslookup nats-3.nats-cluster-route.default.svc.cluster.local ); do sleep 2; done"
+    name: check-dns
+    image: "busybox:1.28.0-glibc"
+
+  containers:
+    - name: nats
+      command: ["/gnatsd", "-DV", "--cluster", "nats://0.0.0.0:6222", "--config", "/etc/nats-config/nats.conf"]
+      image: "nats:1.0.4"
+
+      volumeMounts:
+
+      - name: "server-tls-certs"
+        mountPath: "/etc/nats-server-tls-certs/"
+
+      - name: "config"
+        mountPath: "/etc/nats-config/"
+
+      ports:
+        - name: clients
+          containerPort: 4222
+          protocol: TCP
+
+        - name: clustering
+          containerPort: 6222
+          protocol: TCP
+Confirm the end result with an application
+We will create a small application to confirm that we can connect to this cluster and do failover properly.
+
+Adding a new pod which uses the certificates
+Development
+package main
+
+import (
+	"encoding/json"
+	"flag"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nuid"
+)
+
+func main() {
+	var (
+		serverList     string
+		rootCACertFile string
+		clientCertFile string
+		clientKeyFile  string
+	)
+	flag.StringVar(&serverList, "s", "tls://nats-1.nats-cluster.default.svc:4222", "List of NATS of servers available")
+	flag.StringVar(&rootCACertFile, "cacert", "./certs/ca.pem", "Root CA Certificate File")
+	flag.StringVar(&clientCertFile, "cert", "./certs/client.pem", "Client Certificate File")
+	flag.StringVar(&clientKeyFile, "key", "./certs/client-key.pem", "Client Private key")
+	flag.Parse()
+
+	log.Println("NATS endpoint:", serverList)
+	log.Println("Root CA:", rootCACertFile)
+	log.Println("Client Cert:", clientCertFile)
+	log.Println("Client Key:", clientKeyFile)
+
+	// Connect options
+	rootCA := nats.RootCAs(rootCACertFile)
+	clientCert := nats.ClientCert(clientCertFile, clientKeyFile)
+	alwaysReconnect := nats.MaxReconnects(-1)
+
+	var nc *nats.Conn
+	var err error
+	for {
+		nc, err = nats.Connect(serverList, rootCA, clientCert, alwaysReconnect)
+		if err != nil {
+			log.Printf("Error while connecting to NATS, backing off for a sec... (error: %s)", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		break
+	}
+
+	nc.Subscribe("discovery.*.status", func(m *nats.Msg) {
+		log.Printf("[Received on %q] %s", m.Subject, string(m.Data))
+	})
+
+	discoverySubject := fmt.Sprintf("discovery.%s.status", nuid.Next())
+	info := struct {
+		InMsgs        uint64   `json:"in_msgs"`
+		OutMsgs       uint64   `json:"out_msgs"`
+		Reconnects    uint64   `json:"reconnects"`
+		CurrentServer string   `json:"current_server"`
+		Servers       []string `json:"servers"`
+	}{}
+
+	for range time.NewTicker(1 * time.Second).C {
+		stats := nc.Stats()
+		info.InMsgs = stats.InMsgs
+		info.OutMsgs = stats.OutMsgs
+		info.Reconnects = stats.Reconnects
+		info.CurrentServer = nc.ConnectedUrl()
+		info.Servers = nc.Servers()
+		payload, err := json.Marshal(info)
+		if err != nil {
+			log.Printf("Error marshalling data: %s", err)
+		}
+		err = nc.Publish(discoverySubject, payload)
+		if err != nil {
+			log.Printf("Error during publishing: %s", err)
+		}
+		nc.Flush()
+	}
+}
+Multi step build for the application
+
+FROM golang:1.9.0-alpine3.6 AS builder
+COPY . /go/src/github.com/nats-io/nats-kubernetes/examples/nats-cluster-routes-tls/app
+WORKDIR /go/src/github.com/nats-io/nats-kubernetes/examples/nats-cluster-routes-tls/app
+RUN apk add --update git
+RUN go get -u github.com/nats-io/go-nats
+RUN go get -u github.com/nats-io/nuid
+RUN CGO_ENABLED=0 go build -o nats-client-app -v -a ./client.go
+
+FROM scratch
+COPY --from=builder /go/src/github.com/nats-io/nats-kubernetes/examples/nats-cluster-routes-tls/app/nats-client-app /nats-client-app
+ENTRYPOINT ["/nats-client-app"]
+docker build . -t wallyqs/nats-client-app
+docker run wallyqs/nats-client-app
+docker push wallyqs/nats-client-app
+Pod spec
+apiVersion: apps/v1beta2
+kind: Deployment
+
+# The name of the deployment
+metadata:
+  name: nats-client-app
+
+spec:
+  # This selector has to match the template.metadata.labels section
+  # which is below in the PodSpec
+  selector:
+    matchLabels:
+      name: nats-client-app
+
+  # Number of instances
+  replicas: 5
+
+  # PodSpec
+  template:
+    metadata:
+      labels:
+        name: nats-client-app
+    spec:
+      volumes:
+      - name: "client-tls-certs"
+        secret:
+          secretName: "nats-client-tls-certs"
+      containers:
+      - name: nats-client-app
+        command: ["/nats-client-app", "-s", "nats://nats-cluster.default.svc.cluster.local:4222", "-cacert", '/etc/nats-client-tls-certs/ca.pem', '-cert', '/etc/nats-client-tls-certs/client.pem', '-key', '/etc/nats-client-tls-certs/client-key.pem']
+        image: wallyqs/nats-client-app:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: "client-tls-certs"
+          mountPath: "/etc/nats-client-tls-certs/"

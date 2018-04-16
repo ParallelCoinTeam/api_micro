@@ -1,4 +1,3 @@
-
 FROM golang:1.9.0 as builder
 
 WORKDIR /go/src/github.com/syedomair/api_micro/public-service
@@ -17,7 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 RUN mkdir /app
 WORKDIR /app
-COPY --from=builder /go/src/github.com/syedomair/api_micro/public-service/public-service /public-service
+COPY --from=builder /go/src/github.com/syedomair/api_micro/public-service .
 
 EXPOSE 8180
 

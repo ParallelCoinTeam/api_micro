@@ -2,7 +2,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: subscrp-deployment
+  name: subscrp-depl
   labels:
     app: subscrp
 spec:
@@ -32,6 +32,8 @@ spec:
           value: "/etc/nats-client-tls-certs/client.pem"
         - name: NATS_KEY
           value: "/etc/nats-client-tls-certs/client-key.pem"
+        - name: DB_SERVER
+          value: "meem-db-instance.c8qfd5ux55rw.us-east-2.rds.amazonaws.com"
         - name: SECRET_USERNAME
           valueFrom:
             secretKeyRef:
@@ -47,7 +49,7 @@ spec:
         #imagePullPolicy: Always
         imagePullPolicy: Never
         ports:
-        - name: subscrp-service
+        - name: subscrp-srvc
           containerPort: 8180
         volumeMounts:
         - name: "client-tls-certs"
@@ -58,7 +60,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: subscrp-service
+  name: subscrp-srvc
 spec:
   type: NodePort
   selector:

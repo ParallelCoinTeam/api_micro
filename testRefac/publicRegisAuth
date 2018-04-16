@@ -1,0 +1,19 @@
+
+ curl -i -X POST --url http://192.168.99.100:30043/v1/register --header 'hosts:register'  --header 'authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc' --data '{"first_name":"syed7", "last_name":"omair7", "email":"syed700@gmail.com", "password":"123456", "is_admin":"1"}'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Grpc-Metadata-Content-Type: application/grpc
+Date: Sun, 15 Apr 2018 03:47:31 GMT
+Content-Length: 78
+
+{"result":"success","data":{"user_id":"d0f722f9-2637-460c-acf7-9a42d926f0a4"}}khalid@ssd:~$ curl -i -X POST --url http://192.168.99.100:30043/v1/authenticate --header 'hosts:register'  --header 'authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc' --data '{"first_name":"syed7", "last_name":"omair7", "email":"syed700@gmail.com", "password":"123456", "is_admin":"1"}'
+HTTP/1.1 200 OK
+Content-Type: application/json
+Grpc-Metadata-Content-Type: application/grpc
+Date: Sun, 15 Apr 2018 03:48:39 GMT
+Content-Length: 305
+
+{"result":"success","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXJyZW50X3VzZXJfaWQiOiJkMGY3MjJmOS0yNjM3LTQ2MGMtYWNmNy05YTQyZDkyNmYwYTQiLCJuZXR3b3JrX2lkIjoiYTBlZWJjOTktOWMwYi00ZWY4LWJiNmQtNmJiOWJkMzgwYTExIiwiaXNfYWRtaW4iOiIxIiwiaXNzIjoiTUVFTSJ9.gaqFCCmv0ixcuSQ9zAGd4UYSSZoU2C4VRARI50cR-OY"}}khalid@ssd:~$ 
+
+
