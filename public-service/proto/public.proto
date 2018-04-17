@@ -36,9 +36,8 @@ message User {
     string last_name = 4;
     string email = 5;
     string password = 6;
-    string is_admin = 7;
-    string created_at = 8;
-    string updated_at = 9;
+    string created_at = 7;
+    string updated_at = 8;
 }
 
 message Response {

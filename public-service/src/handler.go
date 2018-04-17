@@ -105,16 +105,27 @@ func (env *Env) Authenticate(ctx context.Context, req *pb.LoginRequest) (*pb.Res
 }
 
 func validateParameters(user *pb.User) error {
-	if err := validation.Validate(user.Email, validation.Required.Error("email is required"), is.Email.Error("must be an email address")); err != nil {
+	if err := validation.Validate(
+		user.Email,
+		validation.Required.Error("email is required"),
+		is.Email.Error("email must be a valid email address")); err != nil {
 		return err
 	}
-	if err := validation.Validate(user.FirstName, validation.Required, validation.Length(1, 32)); err != nil {
+	if err := validation.Validate(
+		user.FirstName, validation.Required,
+		validation.Length(1, 32)); err != nil {
 		return err
 	}
-	if err := validation.Validate(user.LastName, validation.Required, validation.Length(1, 32)); err != nil {
+	if err := validation.Validate(
+		user.LastName,
+		validation.Required,
+		validation.Length(1, 32)); err != nil {
 		return err
 	}
-	if err := validation.Validate(user.Password, validation.Required, validation.Length(6, 32)); err != nil {
+	if err := validation.Validate(
+		user.Password,
+		validation.Required,
+		validation.Length(6, 32)); err != nil {
 		return err
 	}
 	return nil
@@ -124,14 +135,12 @@ func createUserToken(user *pb.User) string {
 	type Claims struct {
 		CurrentUserId string `json:"current_user_id"`
 		NetworkId     string `json:"network_id"`
-		IsAdmin       string `json:"is_admin"`
 		jwt.StandardClaims
 	}
 
 	claims := Claims{
 		user.Id,
 		user.NetworkId,
-		user.IsAdmin,
 		jwt.StandardClaims{
 			Issuer: "MEEM",
 		},

@@ -1,33 +1,51 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"testing"
 	"time"
 
 	"github.com/syedomair/api_micro/common"
 	pb "github.com/syedomair/api_micro/public-service/proto"
+	testdata "github.com/syedomair/api_micro/testdata"
 )
 
-func TestRepoCreate(t *testing.T) {
+func TestPublicDB(t *testing.T) {
 
-	/**/
-	db, err := common.CreateDBConnection()
-	defer db.Close()
+	db, _ := common.CreateDBConnection()
+	repo := &PublicRepository{db, common.GetLogger()}
+	defer repo.db.Close()
 
-	if err != nil {
-		log.Fatalf("Could not connect to DB: %v", err)
-	} else {
-		fmt.Println("Connected to DB")
+	start := time.Now()
+	repo.logger.Log("METHOD", "TestPublicDB", "SPOT", "method start", "time_start", start)
+
+	user := &pb.User{
+		FirstName: testdata.ValidFirstName,
+		LastName:  testdata.ValidLastName,
+		Email:     testdata.ValidEmail,
+		Password:  testdata.ValidPassword,
+		CreatedAt: time.Now().Format(time.RFC3339),
+		UpdatedAt: time.Now().Format(time.RFC3339)}
+
+	userId, err := repo.Create(user, testdata.NetworkId)
+	var expected error = nil
+	if expected != err {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, err)
+	}
+	repo.logger.Log("METHOD", "TestPublicDB", "userId", userId)
+
+	loginReq := &pb.LoginRequest{Email: testdata.ValidEmail, Password: testdata.ValidPassword}
+	userResponse, err := repo.Authenticate(loginReq, testdata.NetworkId)
+	expected = nil
+	if expected != err {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, err)
+	}
+	expectedString := userId
+	if expectedString != userResponse.Id {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, userResponse.Id)
 	}
 
-	logger := common.GetLogger()
-
-	repo := &PublicRepository{db, logger}
-	user := &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 1", LastName: "Last Name 1", Email: "email1@gmail.com", Password: "123", IsAdmin: "1", CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)}
-
-	userId, err := repo.Create(user, "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11")
-	logger.Log("METHOD", "TestRepoCreate", "userId", userId)
-	/**/
+	if err = repo.db.Delete(&user).Error; err != nil {
+		repo.logger.Log("METHOD", "TestPublicDB", "Error in deleting", err)
+	}
+	repo.logger.Log("METHOD", "TestPublicDB", "SPOT", "method end", "time_spent", time.Since(start))
 }

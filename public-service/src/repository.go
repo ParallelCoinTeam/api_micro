@@ -42,7 +42,7 @@ func (repo *PublicRepository) Create(user *pb.User, networkId string) (string, e
 		LastName:  user.LastName,
 		Email:     user.Email,
 		Password:  user.Password,
-		IsAdmin:   user.IsAdmin,
+		IsAdmin:   "0",
 		CreatedAt: time.Now().Format(time.RFC3339),
 		UpdatedAt: time.Now().Format(time.RFC3339)}
 

@@ -6,13 +6,13 @@ import (
 	log "github.com/go-kit/kit/log"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
-	pb "github.com/syedomair/api_micro/user-service/proto"
+	pb "github.com/syedomair/api_micro/users-service/proto"
 )
 
 type Repository interface {
 	Create(user *pb.User, networkId string) (string, error)
-	Get(userId string, networkId string) (*pb.User, error)
 	GetAll(limit string, offset string, orderby string, sort string, networkId string) ([]*pb.User, string, error)
+	Get(userId string, networkId string) (*pb.User, error)
 	Update(user *pb.User, networkId string) error
 	Delete(user *pb.User, networkId string) error
 }
@@ -41,7 +41,6 @@ func (repo *UserRepository) Create(user *pb.User, networkId string) (string, err
 	}
 	return userId, nil
 }
-
 func (repo *UserRepository) GetAll(limit string, offset string, orderby string, sort string, networkId string) ([]*pb.User, string, error) {
 
 	var users []*pb.User

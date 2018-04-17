@@ -5,12 +5,6 @@ package users;
 import "google/api/annotations.proto";
 
 service UsersService {
-    rpc Create(User) returns(Response) {
-        option(google.api.http) = {
-            post: "/v1/users"
-            body: "*"
-        };
-    }
     rpc GetAll(RequestQuery) returns(ResponseList) {
         option(google.api.http) = {
             get: "/v1/users"

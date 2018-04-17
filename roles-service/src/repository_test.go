@@ -9,14 +9,14 @@ import (
 	testdata "github.com/syedomair/api_micro/testdata"
 )
 
-func TestDB(t *testing.T) {
+func TestRoleDB(t *testing.T) {
 
 	db, _ := common.CreateDBConnection()
 	repo := &RoleRepository{db, common.GetLogger()}
 	defer repo.db.Close()
 
 	start := time.Now()
-	repo.logger.Log("METHOD", "TestDB", "SPOT", "method start", "time_start", start)
+	repo.logger.Log("METHOD", "TestRoleDB", "SPOT", "method start", "time_start", start)
 
 	//Create
 	role := &pb.Role{Title: testdata.RoleTitle1, RoleType: testdata.RoleType}
@@ -25,7 +25,7 @@ func TestDB(t *testing.T) {
 	if expected != err {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, err)
 	}
-	repo.logger.Log("METHOD", "TestRepoCreate", "roleId", roleId)
+	repo.logger.Log("METHOD", "TestRoleDB", "roleId", roleId)
 
 	//Get
 	roleResponse, err := repo.Get(roleId, testdata.NetworkId)
@@ -33,7 +33,7 @@ func TestDB(t *testing.T) {
 	if expected != err {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, err)
 	}
-	repo.logger.Log("METHOD", "TestRepoCreate", "roleResponse", roleResponse)
+	repo.logger.Log("METHOD", "TestRoleDB", "roleResponse", roleResponse)
 
 	//Update
 	role.Title = testdata.RoleTitle2
@@ -53,7 +53,7 @@ func TestDB(t *testing.T) {
 	if expectedString != roleResponse.Title {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expectedString, roleResponse.Title)
 	}
-	repo.logger.Log("METHOD", "TestRepoCreate", "roleResponse", roleResponse)
+	repo.logger.Log("METHOD", "TestRoleDB", "roleResponse", roleResponse)
 
 	//GetAll
 	roles, _, err := repo.GetAll("1", "0", "created_at", "desc", testdata.NetworkId)
@@ -68,8 +68,8 @@ func TestDB(t *testing.T) {
 
 	//cleaning up after test
 	if err = repo.db.Delete(&role).Error; err != nil {
-		repo.logger.Log("METHOD", "TestRepoCreate", "Error in deleting", err)
+		repo.logger.Log("METHOD", "TestRoleDB", "Error in deleting", err)
 	}
 
-	repo.logger.Log("METHOD", "TestDB", "SPOT", "method end", "time_spent", time.Since(start))
+	repo.logger.Log("METHOD", "TestRoleDB", "SPOT", "method end", "time_spent", time.Since(start))
 }

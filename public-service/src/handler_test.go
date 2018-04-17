@@ -41,6 +41,59 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+func TestAuthenticate(t *testing.T) {
+	env := Env{repo: &mockDB{}, nats: &mockNATS{}, logger: common.GetLogger()}
+	md := metadata.New(map[string]string{"authorization": testdata.TestValidPublicToken})
+	ctx := metadata.NewIncomingContext(context.Background(), md)
+
+	user := &pb.LoginRequest{
+		Email:    testdata.ValidEmail,
+		Password: testdata.ValidPassword}
+	response, _ := env.Authenticate(ctx, user)
+
+	//TEST 1 correct authorization
+	expected := "success"
+	if expected != response.Result {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
+	}
+
+	md = metadata.New(map[string]string{"authorization": testdata.TestInValidPublicToken})
+	ctx = metadata.NewIncomingContext(context.Background(), md)
+
+	response, _ = env.Authenticate(ctx, user)
+
+	//TEST 2 incorrect authorization
+	expected = "failure"
+	if expected != response.Result {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
+	}
+
+	//TEST 3 correct authorization with invalid password
+	md = metadata.New(map[string]string{"authorization": testdata.TestInValidPublicToken})
+	ctx = metadata.NewIncomingContext(context.Background(), md)
+
+	user = &pb.LoginRequest{
+		Email:    testdata.ValidEmail,
+		Password: testdata.InValidPassword}
+	response, _ = env.Authenticate(ctx, user)
+
+	expected = "failure"
+	if expected != response.Result {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
+	}
+
+	//TEST 4 correct authorization with invalid email
+	user = &pb.LoginRequest{
+		Email:    testdata.InValidEmail,
+		Password: testdata.ValidPassword}
+	response, _ = env.Authenticate(ctx, user)
+
+	expected = "failure"
+	if expected != response.Result {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
+	}
+}
+
 type mockNATS struct {
 }
 
@@ -65,7 +118,6 @@ func (mdb *mockDB) Authenticate(user *pb.LoginRequest, networkId string) (*pb.Us
 		LastName:  testdata.ValidLastName,
 		Email:     testdata.ValidEmail,
 		Password:  testdata.ValidPassword,
-		IsAdmin:   testdata.IsAdmin,
 		CreatedAt: time.Now().Format(time.RFC3339),
 		UpdatedAt: time.Now().Format(time.RFC3339)}, nil
 }
@@ -84,9 +136,9 @@ func (mdb *mockDB) GetNetworkFromApiKey(apiKey string) (*pb.Network, error) {
 /*
 func (mdb *mockDB) initMockDb() ([]*pb.User, error) {
 	users := make([]*pb.User, 0)
-	users = append(users, &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 1", LastName: "Last Name 1", Email: "email1@gmail.com", Password: "123", IsAdmin: "1", CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)})
-	users = append(users, &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 2", LastName: "Last Name 2", Email: "email2@gmail.com", Password: "123", IsAdmin: "1", CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)})
-	users = append(users, &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 3", LastName: "Last Name 3", Email: "email3@gmail.com", Password: "123", IsAdmin: "1", CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)})
+	users = append(users, &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 1", LastName: "Last Name 1", Email: "email1@gmail.com", Password: "123", CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)})
+	users = append(users, &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 2", LastName: "Last Name 2", Email: "email2@gmail.com", Password: "123",  CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)})
+	users = append(users, &pb.User{Id: "04b58e6e-f910-4ff0-83f1-27fbfa85dc2f", NetworkId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", FirstName: "First Name 3", LastName: "Last Name 3", Email: "email3@gmail.com", Password: "123",  CreatedAt: time.Now().Format(time.RFC3339), UpdatedAt: time.Now().Format(time.RFC3339)})
 	return users, nil
 }
 */
