@@ -16,7 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 RUN mkdir /app
 WORKDIR /app
-COPY --from=builder /go/src/github.com/syedomair/api_micro/public-service .
+COPY --from=builder /go/src/github.com/syedomair/api_micro/public-service/public-service /public-service 
 
 EXPOSE 8180
 

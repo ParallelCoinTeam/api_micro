@@ -16,7 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 RUN mkdir /app
 WORKDIR /app
-COPY --from=builder /go/src/github.com/syedomair/api_micro/roles-service .
+COPY --from=builder /go/src/github.com/syedomair/api_micro/roles-service/roles-service /roles-service
 
 EXPOSE 8180
 

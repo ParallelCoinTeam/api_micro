@@ -49,7 +49,7 @@ spec:
         #imagePullPolicy: Always
         imagePullPolicy: Never
         ports:
-        - name: public-srvc
+        - name: public-service
           containerPort: 8180
         volumeMounts:
         - name: "client-tls-certs"

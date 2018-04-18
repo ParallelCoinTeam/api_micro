@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/syedomair/api_micro/common"
 )
 
 func CheckAuth(tokenString string) (string, string, error) {
@@ -17,7 +18,7 @@ func CheckAuth(tokenString string) (string, string, error) {
 	tokenClaims := Claims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, &tokenClaims, func(token *jwt.Token) (interface{}, error) {
-		return []byte("dHb%e@Bg0f8-API_SECRET-&bE71jKoH=2"), nil
+		return []byte(common.SIGNING_KEY), nil
 	})
 	if err != nil {
 		return "", "", errors.New(err.Error())

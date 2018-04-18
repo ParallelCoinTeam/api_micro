@@ -17,3 +17,6 @@ kubectl get jobs --all-namespaces | sed '1d' | awk '{ print $2, "--namespace", $
 awk '{print $0","}' temp1 > temp2
 
 cut -c1-2 temp > temp1
+
+#
+dep init && dep ensure

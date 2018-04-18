@@ -1,9 +1,9 @@
-
 FROM golang:1.9.0 as builder
 
 WORKDIR /go/src/github.com/syedomair/api_micro/subscrp-service
 
 COPY src .
+
 #RUN go get -u github.com/golang/dep/cmd/dep
 #RUN dep init && dep ensure
 COPY vendor vendor

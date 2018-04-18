@@ -17,13 +17,13 @@ for d in */ ; do
     echo "---------------------------- "
     echo "Processing: $d"
     echo "---------------------------- "
-    kubectl delete deployment ${d%-service/}-deployment 
-    kubectl delete service ${d%-service/}-service 
+    kubectl delete deployment ${d%-service/}-depl
+    kubectl delete service ${d%-service/}-srvc 
   fi
 done
 
-kubectl delete service database-service
-kubectl delete secret db-secret
+#kubectl delete service database-service
+#kubectl delete secret db-secret
 
 #kubectl delete deployment kong
 #kubectl delete service kong-admin
@@ -31,11 +31,8 @@ kubectl delete secret db-secret
 #kubectl delete service kong-proxy-ssl
 #kubectl delete service kong-proxy
 
-
-
-
 #kubectl create -f db.yaml
-kubectl create -f secret.yaml
+#kubectl create -f secret.yaml
 
 echo "Deploying "
 echo "--------- "

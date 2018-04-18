@@ -8,23 +8,30 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	testdata "github.com/syedomair/api_micro/testdata"
 )
 
 func main() {
 
+	kongAdminURL, _ := minikubeServiceURL("kong-admin")
 	kongProxyURL, _ := minikubeServiceURL("kong-proxy")
-	publicURL, _ := minikubeServiceURL("public-service")
-	userURL, _ := minikubeServiceURL("user-service")
-	roleURL, _ := minikubeServiceURL("role-service")
+	publicURL, _ := minikubeServiceURL("public-srvc")
+	userURL, _ := minikubeServiceURL("users-srvc")
+	roleURL, _ := minikubeServiceURL("roles-srvc")
 
+	fmt.Println("kong-admin:", kongAdminURL)
 	fmt.Println("kong-proxy:", kongProxyURL)
 	fmt.Println("public-srvc:", publicURL)
 	fmt.Println("users-srvc:", userURL)
 	fmt.Println("roles-srvc:", roleURL)
 	testCases = []testCaseType{
-		{"POST", publicURL + "/v1/register", `{"first_name":"testFName", "last_name":"testLName", "email":"test_email@gmail.com", "password":"123456", "is_admin":"1"}`, `"success"`, ``},
+		{"POST", publicURL + "/v1/register", `{"first_name":"` + testdata.ValidFirstName + `", "last_name":"` + testdata.ValidLastName + `", "email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
+		{"POST", publicURL + "/v1/authenticate", `{"email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
+		{"DELETE", userURL + "/v1/users/", `{"email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
 	}
 	i := 0
+	userId := ""
 	for _, testCase := range testCases {
 		req, err := http.NewRequest(testCase.method, testCase.url, strings.NewReader(testCase.requestBody))
 
@@ -34,7 +41,7 @@ func main() {
 		if err != nil {
 			print(err)
 		}
-		req.Header.Set("authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoidGhlJG5ldHdvcmsjYXBpKmtleSIsImlzcyI6Ik1FRU0ifQ.TAFZabSWpnmmXThkRZ1FIQZvRKzESL4jER2dj_h30oc")
+		req.Header.Set("authorization", testdata.TestValidPublicToken)
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
@@ -52,6 +59,19 @@ func main() {
 		fmt.Println(strconv.Itoa(i) + " " + testCase.method + " " + string(testCase.url))
 		fmt.Println(string(jsonData))
 		fmt.Println(string(jsonResult))
+		if i == 0 {
+			var userIdInterface map[string]interface{}
+			json.Unmarshal(jsonData, &userIdInterface)
+			jsonUserId, _ := json.Marshal(userIdInterface["user_id"])
+			fmt.Println(string(jsonUserId))
+			userId = string(jsonUserId)
+
+			//jsonUserId, _ := json.Marshal(userIdInterface["user_id"])
+			//fmt.Println(string(jsonUserId))
+			//fmt.Println(bodyInterface)
+			//var userIdInterface map[string]interface{}
+			//userIdInterface = bodyInterface["data"]
+		}
 
 		/*
 			if string(jsonData) != testCase.responseData {
