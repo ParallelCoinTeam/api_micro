@@ -131,7 +131,7 @@
     "common",
     "testdata"
   ]
-  revision = "6fa9f0b23ceb9fbe844427cfe1812541f2efdbaa"
+  revision = "f5b8532b5c6d3a34100e272b9bd6b1f12af547d4"
 
 [[projects]]
   branch = "master"
@@ -146,7 +146,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "8d16fa6dc9a85c1cd3ed24ad08ff21cf94f10888"
+  revision = "84348c2dc81a524fe94aaea3e3d9f967135338ef"
 
 [[projects]]
   name = "golang.org/x/text"
