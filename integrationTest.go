@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +12,17 @@ import (
 
 	testdata "github.com/syedomair/api_micro/testdata"
 )
+
+type testCaseType struct {
+	method         string
+	url            string
+	pathParam      string
+	requestBody    string
+	responseResult string
+	responseData   string
+}
+
+var testCases []testCaseType
 
 func main() {
 
@@ -25,23 +37,50 @@ func main() {
 	fmt.Println("public-srvc:", publicURL)
 	fmt.Println("users-srvc:", userURL)
 	fmt.Println("roles-srvc:", roleURL)
+
 	testCases = []testCaseType{
-		{"POST", publicURL + "/v1/register", `{"first_name":"` + testdata.ValidFirstName + `", "last_name":"` + testdata.ValidLastName + `", "email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
-		{"POST", publicURL + "/v1/authenticate", `{"email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
-		{"DELETE", userURL + "/v1/users/", `{"email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
+		{"POST", publicURL + "/v1/register", "", `{"first_name":"` + testdata.ValidFirstName + `", "last_name":"` + testdata.ValidLastName + `", "email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
+		{"POST", publicURL + "/v1/authenticate", "", `{"email":"` + testdata.ValidEmail + `", "password":"` + testdata.ValidPassword + `"}`, `"success"`, ``},
+		{"POST", roleURL + "/v1/roles", "", `{"title":"` + testdata.RoleTitle1 + `","role_type":"` + testdata.RoleType + `"}`, `"success"`, ``},
+		{"GET", roleURL + "/v1/roles/", "role_id", ``, `"success"`, ``},
+		{"GET", roleURL + "/v1/roles", "", ``, `"success"`, ``},
+		{"PATCH", roleURL + "/v1/roles/", "role_id", `{"title":"` + testdata.RoleTitle2 + `","role_type":"` + testdata.RoleType + `"}`, `"success"`, ``},
+		{"GET", roleURL + "/v1/roles/", "role_id", ``, `"success"`, ``},
+		{"DELETE", roleURL + "/v1/roles/", "role_id", ``, `"success"`, ``},
+		{"GET", userURL + "/v1/users/", "user_id", ``, `"success"`, ``},
+		{"GET", userURL + "/v1/users", "", ``, `"success"`, ``},
+		{"PATCH", userURL + "/v1/users/", "user_Id", `{"first_name":"` + testdata.ValidFirstName + `"}`, `"success"`, ``},
+		{"GET", userURL + "/v1/users/", "user_id", ``, `"success"`, ``},
+		{"DELETE", userURL + "/v1/users/", "user_id", ``, `"success"`, ``},
 	}
 	i := 0
 	userId := ""
+	roleId := ""
+	token := ""
 	for _, testCase := range testCases {
-		req, err := http.NewRequest(testCase.method, testCase.url, strings.NewReader(testCase.requestBody))
+		fmt.Println("---------------------------------------------------------------------------")
+		url := ""
+		if testCase.pathParam == "user_id" {
+			url = testCase.url + userId
+		} else if testCase.pathParam == "role_id" {
+			url = testCase.url + roleId
+		} else {
+			url = testCase.url
+		}
+		req, err := http.NewRequest(testCase.method, url, strings.NewReader(testCase.requestBody))
 
 		fmt.Println("method:", testCase.method)
-		fmt.Println("url:", testCase.url)
+		fmt.Println("url:", url)
 		fmt.Println("body:", testCase.requestBody)
+		fmt.Println("token:", token)
 		if err != nil {
 			print(err)
 		}
-		req.Header.Set("authorization", testdata.TestValidPublicToken)
+		if i > 1 {
+			req.Header.Set("authorization", token)
+		} else {
+			req.Header.Set("authorization", testdata.TestValidPublicToken)
+		}
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
@@ -49,10 +88,11 @@ func main() {
 			print(err)
 		}
 
-		//resp, _ := http.DefaultClient.Do(req)
 		body, _ := ioutil.ReadAll(resp.Body)
 
 		var bodyInterface map[string]interface{}
+
+		//fmt.Println(string(body))
 		json.Unmarshal(body, &bodyInterface)
 		jsonData, _ := json.Marshal(bodyInterface["data"])
 		jsonResult, _ := json.Marshal(bodyInterface["result"])
@@ -63,16 +103,25 @@ func main() {
 			var userIdInterface map[string]interface{}
 			json.Unmarshal(jsonData, &userIdInterface)
 			jsonUserId, _ := json.Marshal(userIdInterface["user_id"])
-			fmt.Println(string(jsonUserId))
-			userId = string(jsonUserId)
-
-			//jsonUserId, _ := json.Marshal(userIdInterface["user_id"])
-			//fmt.Println(string(jsonUserId))
-			//fmt.Println(bodyInterface)
-			//var userIdInterface map[string]interface{}
-			//userIdInterface = bodyInterface["data"]
+			userId = string(bytes.Trim(jsonUserId, `"`))
+			fmt.Println("userId=", userId)
+		}
+		if i == 1 {
+			var tokenInterface map[string]interface{}
+			json.Unmarshal(jsonData, &tokenInterface)
+			jsonToken, _ := json.Marshal(tokenInterface["token"])
+			token = string(bytes.Trim(jsonToken, `"`))
+			fmt.Println("token:", token)
+		}
+		if i == 2 {
+			var roleIdInterface map[string]interface{}
+			json.Unmarshal(jsonData, &roleIdInterface)
+			jsonUserId, _ := json.Marshal(roleIdInterface["role_id"])
+			roleId = string(bytes.Trim(jsonUserId, `"`))
+			fmt.Println("roleId:", roleId)
 		}
 
+		fmt.Println("---------------------------------------------------------------------------")
 		/*
 			if string(jsonData) != testCase.responseData {
 				if testCase.responseData != "list" {
@@ -98,16 +147,6 @@ func minikubeServiceURL(serviceName string) (string, error) {
 	}
 	return strings.Trim(string(serviceURL), "\n"), nil
 }
-
-type testCaseType struct {
-	method         string
-	url            string
-	requestBody    string
-	responseResult string
-	responseData   string
-}
-
-var testCases []testCaseType
 
 func TestServer() {
 

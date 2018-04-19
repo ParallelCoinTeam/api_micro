@@ -131,7 +131,7 @@
     "common",
     "testdata"
   ]
-  revision = "f5b8532b5c6d3a34100e272b9bd6b1f12af547d4"
+  revision = "9254a7122d656850d009ee4ccccda3f3db421a36"
 
 [[projects]]
   branch = "master"

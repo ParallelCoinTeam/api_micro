@@ -24,7 +24,7 @@ func (env *Env) GetAll(ctx context.Context, req *pb.RequestQuery) (*pb.ResponseL
 	env.logger.Log("METHOD", "GetAll", "SPOT", "method start", "time_start", start)
 	networkId, _ := ctx.Value("network_id").(string)
 
-	limit, offset, orderby, sort, err := common.ValidateQueryString(req.Limit, "3", req.Offset, "0", req.Orderby, "title", req.Sort, "asc")
+	limit, offset, orderby, sort, err := common.ValidateQueryString(req.Limit, "3", req.Offset, "0", req.Orderby, "created_at", req.Sort, "asc")
 	if err != nil {
 		return &pb.ResponseList{Result: common.FAILURE, Error: common.CommonError(err.Error()), Data: nil}, nil
 	}
