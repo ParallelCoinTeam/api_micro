@@ -26,66 +26,49 @@ do
    curl -i -X DELETE --url $URL
 done
 
-
-#curl -i -X DELETE --url $KONG_ADMIN/services/public-register 
-#curl -i -X POST --url $KONG_ADMIN/services/ --data 'name=public-register' --data 'url='$PUBLIC_SRVC'/v1/register'
-#curl -i -X POST --url $KONG_ADMIN/services/public-register/routes --data 'hosts[]=register'
-#
-#curl -i -X DELETE --url $KONG_ADMIN/services/public-authenticate 
-#curl -i -X POST --url $KONG_ADMIN/services/ --data 'name=public-authenticate' --data 'url='$PUBLIC_SRVC'/v1/authenticate'
-#curl -i -X POST --url $KONG_ADMIN/services/public-authenticate/routes --data 'hosts[]=authenticate'
-
-
 deploySecure () {
     echo "-----------------------------"
     echo Deploying $1
-    echo "-----------------------------"
+    echo
+    echo "-----------------------------Deleting Service-----------------------------"
     curl -i -X DELETE --url $KONG_ADMIN/services/$1
+    echo
+    echo "-----------------------------Creating new Service-----------------------------"
     curl -i -X POST --url $KONG_ADMIN/services/ --data 'name='$1 --data 'url='$3$2
-    curl -i -X POST --url $KONG_ADMIN/services/$1/routes --data 'hosts[]='$1
+    echo
+    echo "-----------------------------Creating new Route-----------------------------"
+    curl -i -X POST --url $KONG_ADMIN/services/$1/routes --data 'paths[]='$2 --data 'methods[]='$4
+    echo
+    echo "-----------------------------Applying key-auth to service----------------------"
     curl -i -X POST --url $KONG_ADMIN/services/$1/plugins --data "name=key-auth"
+    echo
 }
 deployPublic () {
     echo "-----------------------------"
     echo Deploying $1
     echo "-----------------------------"
+    echo
+    echo "-----------------------------Deleting Service-----------------------------"
     curl -i -X DELETE --url $KONG_ADMIN/services/$1
+    echo
+    echo "-----------------------------Creating new Service-----------------------------"
     curl -i -X POST --url $KONG_ADMIN/services/ --data 'name='$1 --data 'url='$3$2
-    curl -i -X POST --url $KONG_ADMIN/services/$1/routes --data 'hosts[]='$1
+    echo
+    echo "-----------------------------Creating new Route-----------------------------"
+    curl -i -X POST --url $KONG_ADMIN/services/$1/routes --data 'paths[]='$2 --data 'methods[]='$4
 }
 
-deployPublic "public-register" "/v1/register" $PUBLIC_SRVC
-deployPublic "public-authenticate" "/v1/authenticate" $PUBLIC_SRVC
-deploySecure "role-create" "/v1/roles" $ROLES_SRVC
+deployPublic "public-register" "/v1/register" $PUBLIC_SRVC "POST"
+deployPublic "public-authenticate" "/v1/authenticate" $PUBLIC_SRVC "POST"
+$ROLE
+deploySecure "role-create" "/v1/roles" $ROLES_SRVC "POST"
+deploySecure "role-get-all" "/v1/roles" $ROLES_SRVC "GET"
+deploySecure "role-get" "/v1/roles/role_id" $ROLES_SRVC "GET"
+deploySecure "role-patch" "/v1/roles/role_id" $ROLES_SRVC "PATCH"
+deploySecure "role-delete" "/v1/roles/role_id" $ROLES_SRVC "DELETE"
+#USER
+deploySecure "user-get-all" "/v1/users" $USERS_SRVC "GET"
+deploySecure "user-get" "/v1/users/user_id" $USERS_SRVC "GET"
+deploySecure "user-patch" "/v1/users/user_id" $USERS_SRVC "PATCH"
+deploySecure "user-delete" "/v1/users/user_id" $USERS_SRVC "DELETE"
 
-#echo "Removing previous deployment "
-#echo "---------------------------- "
-#for d in */ ; do
-#  if [[ $d = *"service"* ]]; then
-#    echo "---------------------------- "
-#    echo "Processing: $d"
-#    echo "---------------------------- "
-#    if [[ ${d%-service/} != *"public"* && ${d%-service/} != *"subscrp"*  ]]; then
-#        curl -i -X DELETE --url $KONG_ADMIN/services/$d
-#    fi
-#  fi
-#done
-#
-#
-#echo "Deployment "
-#echo "---------------------------- "
-#for d in */ ; do
-#  if [[ $d = *"service"* ]]; then
-#    echo "---------------------------- "
-#    echo "Processing: $d"
-#    echo "---------------------------- "
-#    TEMP_URL="$(minikube service ${d%/} --url)"
-#    echo $TEMP_URL
-#
-#    if [[ ${d%-service/} != *"public"* && ${d%-service/} != *"subscrp"*  ]]; then
-#       curl -i -X POST --url $KONG_ADMIN/services/ --data 'name='${d%/}  --data 'url='$TEMP_URL'/v1/'${d%-service/}
-#       curl -i -X POST --url $KONG_ADMIN/services/${d%/}/routes --data "hosts[]="${d%-service/}
-#       curl -i -X POST --url $KONG_ADMIN/services/${d%/}/plugins --data "name=key-auth"
-#    fi
-#  fi
-####done
