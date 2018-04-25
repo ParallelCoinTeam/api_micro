@@ -49,7 +49,7 @@ func main() {
 		{"DELETE", roleURL + "/v1/roles/", "role_id", ``, `"success"`, ``},
 		{"GET", userURL + "/v1/users/", "user_id", ``, `"success"`, ``},
 		{"GET", userURL + "/v1/users", "", ``, `"success"`, ``},
-		{"PATCH", userURL + "/v1/users/", "user_Id", `{"first_name":"` + testdata.ValidFirstName + `"}`, `"success"`, ``},
+		{"PATCH", userURL + "/v1/users/", "user_id", `{"first_name":"` + testdata.ValidFirstName + `"}`, `"success"`, ``},
 		{"GET", userURL + "/v1/users/", "user_id", ``, `"success"`, ``},
 		{"DELETE", userURL + "/v1/users/", "user_id", ``, `"success"`, ``},
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	log "github.com/go-kit/kit/log"
@@ -73,6 +74,7 @@ func (repo *RoleRepository) Get(roleId string, networkId string) (*pb.Role, erro
 func (repo *RoleRepository) Update(role *pb.Role, networkId string) error {
 	start := time.Now()
 	repo.logger.Log("METHOD", "Update", "SPOT", "method start", "time_start", start)
+	fmt.Println(role)
 	if err := repo.db.Model(role).Update(&role).Error; err != nil {
 		return err
 	}

@@ -50,11 +50,9 @@ func main() {
 		{"DELETE", kongProxyURL + "/v1/roles/", "role_id", ``, `"success"`, ``},
 		{"GET", kongProxyURL + "/v1/users/", "user_id", ``, `"success"`, ``},
 		{"GET", kongProxyURL + "/v1/users", "", ``, `"success"`, ``},
-		{"PATCH", kongProxyURL + "/v1/users/", "user_Id", `{"first_name":"` + testdata.ValidFirstName + `"}`, `"success"`, ``},
+		{"PATCH", kongProxyURL + "/v1/users/", "user_id", `{"first_name":"` + testdata.ValidFirstName + `"}`, `"success"`, ``},
 		{"GET", kongProxyURL + "/v1/users/", "user_id", ``, `"success"`, ``},
 		{"DELETE", kongProxyURL + "/v1/users/", "user_id", ``, `"success"`, ``},
-		/*
-		 */
 	}
 	i := 0
 	userId := ""

@@ -142,7 +142,6 @@ func TestUpdateRole(t *testing.T) {
 	if expected != response.Result {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
 	}
-
 	//Invalid RoleId
 	role = &pb.Role{Id: testdata.InValidId, Title: testdata.RoleTitle1, RoleType: testdata.RoleType}
 	response, _ = env.UpdateRole(ctx, role)
@@ -156,7 +155,16 @@ func TestUpdateRole(t *testing.T) {
 	role = &pb.Role{Id: testdata.RoleId1, Title: testdata.RoleTitleInvalid, RoleType: testdata.RoleType}
 	response, _ = env.UpdateRole(ctx, role)
 
-	expected = testdata.FAILURE
+	expected = testdata.SUCCESS
+	if expected != response.Result {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
+	}
+
+	//ALL Invalid RoleTitle
+	role = &pb.Role{Id: testdata.RoleId1, RoleType: testdata.RoleType}
+	response, _ = env.UpdateRole(ctx, role)
+
+	expected = testdata.SUCCESS
 	if expected != response.Result {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
 	}
@@ -166,6 +174,15 @@ func TestUpdateRole(t *testing.T) {
 	response, _ = env.UpdateRole(ctx, role)
 
 	expected = testdata.FAILURE
+	if expected != response.Result {
+		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
+	}
+	env.logger.Log("METHOD", "TestUpdateRole", "SPOT", "method end", "time_spent", time.Since(start))
+
+	//No Role Type
+	role = &pb.Role{Id: testdata.RoleId1, Title: testdata.RoleTitle1}
+	response, _ = env.UpdateRole(ctx, role)
+	expected = testdata.SUCCESS
 	if expected != response.Result {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
 	}

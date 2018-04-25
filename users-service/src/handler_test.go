@@ -117,10 +117,10 @@ func TestUpdateUser(t *testing.T) {
 	}
 
 	//ALL Invalid name
-	user = &pb.User{Id: testdata.UserId, FirstName: ""}
+	user = &pb.User{Id: testdata.UserId, FirstName: testdata.ValidFirstName}
 	response, _ = env.UpdateUser(ctx, user)
 
-	expected = testdata.FAILURE
+	expected = testdata.SUCCESS
 	if expected != response.Result {
 		t.Errorf("\n...expected = %v\n...obtained = %v", expected, response.Result)
 	}

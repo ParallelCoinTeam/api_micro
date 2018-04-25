@@ -25,7 +25,7 @@ func (env *Env) CreateRole(ctx context.Context, req *pb.Role) (*pb.Response, err
 	networkId, _ := ctx.Value("network_id").(string)
 	env.logger.Log("METHOD", "Create", "SPOT", "method start", "network_id", networkId)
 
-	if err := validateParameters(req); err != nil {
+	if err := validateCreateParameters(req); err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.ErrorMessage("2004", err.Error())}, nil
 	}
 
@@ -81,13 +81,14 @@ func (env *Env) UpdateRole(ctx context.Context, req *pb.Role) (*pb.Response, err
 
 	start := time.Now()
 	env.logger.Log("METHOD", "UpdateRole", "SPOT", "method start", "time_start", start)
+	env.logger.Log("METHOD", "UpdateRole", "SPOT", "input request:", "req:", req)
 	networkId, _ := ctx.Value("network_id").(string)
 
 	if err := validateRoleId(req); err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.ErrorMessage("2004", err.Error())}, nil
 	}
 
-	if err := validateParameters(req); err != nil {
+	if err := validateUpdateParameters(req); err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.ErrorMessage("2004", err.Error())}, nil
 	}
 
@@ -116,22 +117,41 @@ func (env *Env) DeleteRole(ctx context.Context, req *pb.Role) (*pb.Response, err
 	return &pb.Response{Result: common.SUCCESS, Data: responseRoleId, Error: nil}, nil
 }
 
-func validateParameters(role *pb.Role) error {
+func validateUpdateParameters(role *pb.Role) error {
+	if role.Title != "" {
+		if err := validation.Validate(
+			role.Title,
+			validation.Required.Error("title is a required field."),
+			validation.Length(1, 64).Error("title is a rqquired field with the max character of 64")); err != nil {
+			return err
+		}
+	}
+	if role.RoleType != "" {
+		if err := validation.Validate(
+			role.RoleType,
+			validation.Required.Error("role_type is a required field."),
+			is.Digit.Error("role_type must be a digit between 0 and 9")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateCreateParameters(role *pb.Role) error {
 	if err := validation.Validate(
 		role.Title,
-		validation.Required.Error("title is a required field"),
-		validation.Length(1, 64).Error("Title is a rqquired field with the max character of 64")); err != nil {
+		validation.Required.Error("title is a required field."),
+		validation.Length(1, 64).Error("title is a rqquired field with the max character of 64")); err != nil {
 		return err
 	}
 	if err := validation.Validate(
 		role.RoleType,
-		validation.Required,
+		validation.Required.Error("role_type is a required field."),
 		is.Digit.Error("role_type must be a digit between 0 and 9")); err != nil {
 		return err
 	}
 	return nil
 }
-
 func validateRoleId(role *pb.Role) error {
 	if err := validation.Validate(
 		role.Id,

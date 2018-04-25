@@ -60,13 +60,14 @@ func (env *Env) UpdateUser(ctx context.Context, req *pb.User) (*pb.Response, err
 
 	start := time.Now()
 	env.logger.Log("METHOD", "UpdateUser", "SPOT", "method start", "time_start", start)
+	env.logger.Log("METHOD", "UpdateUser", "SPOT", "input request:", "req:", req)
 	networkId, _ := ctx.Value("network_id").(string)
 
 	if err := validateUserId(req); err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.ErrorMessage("2004", err.Error())}, nil
 	}
 
-	if err := validateParameters(req); err != nil {
+	if err := validateUpdateParameters(req); err != nil {
 		return &pb.Response{Result: common.FAILURE, Data: nil, Error: common.ErrorMessage("2004", err.Error())}, nil
 	}
 	err := env.repo.Update(req, networkId)
@@ -96,18 +97,37 @@ func (env *Env) DeleteUser(ctx context.Context, req *pb.User) (*pb.Response, err
 	return &pb.Response{Result: common.SUCCESS, Data: responseUserId, Error: nil}, nil
 }
 
-func validateParameters(role *pb.User) error {
+func validateCreateParameters(user *pb.User) error {
 	if err := validation.Validate(
-		role.FirstName,
+		user.FirstName,
 		validation.Required.Error("first_name is a required field"),
 		validation.Length(1, 64).Error("first_name is a rqquired field with the max character of 32")); err != nil {
 		return err
 	}
 	if err := validation.Validate(
-		role.LastName,
+		user.LastName,
 		validation.Required.Error("last_name is a required field"),
 		validation.Length(1, 64).Error("last_name is a rqquired field with the max character of 32")); err != nil {
 		return err
+	}
+	return nil
+}
+func validateUpdateParameters(user *pb.User) error {
+	if user.FirstName != "" {
+		if err := validation.Validate(
+			user.FirstName,
+			validation.Required.Error("first_name is a required field"),
+			validation.Length(1, 64).Error("first_name is a rqquired field with the max character of 32")); err != nil {
+			return err
+		}
+	}
+	if user.LastName != "" {
+		if err := validation.Validate(
+			user.LastName,
+			validation.Required.Error("last_name is a required field"),
+			validation.Length(1, 64).Error("last_name is a rqquired field with the max character of 32")); err != nil {
+			return err
+		}
 	}
 	return nil
 }
